@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: ${BOT_APP_DB_URL}
+    username: ${BOT_APP_DB_USERNAME}
+    password: ${BOT_APP_DB_PASSWORD}
+  flyway:
+    schemas:
+      - public
+      - bot_app
+  jpa:
+    show-sql: true
+server:
+  port: 8081
+logging:
+  level:
+    sql: info
