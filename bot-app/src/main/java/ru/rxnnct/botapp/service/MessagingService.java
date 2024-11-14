@@ -14,7 +14,9 @@ public class MessagingService {
 
             String responseMessage;
             switch (text) {
-                case "/ping" -> responseMessage = String.format("Pong %s!", chatId);
+                case "/start" -> responseMessage = "Hi! Please, enter your name";
+                case "/set_name" -> responseMessage = String.format("New name: %s!", chatId);
+                case "/player_info" -> responseMessage = String.format("ChatId: %s!", chatId);
                 default -> responseMessage = "Unknown command";
             }
 
