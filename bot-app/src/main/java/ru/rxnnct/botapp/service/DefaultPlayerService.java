@@ -16,7 +16,7 @@ public class DefaultPlayerService implements PlayerService {
 
     @Override
     @Transactional
-    public Player createPlayer(String name, Integer tgId) {
+    public Player createPlayer(String name, Long tgId) {
         return this.playerRepository.save(new Player(null, name, tgId));
     }
 
@@ -27,12 +27,12 @@ public class DefaultPlayerService implements PlayerService {
 
     @Override
     @Transactional
-    public void updatePlayer(Integer id, String name, Integer tgId) {
+    public void updatePlayer(Integer id, String name, Long tgId) {
         this.playerRepository.findById(id).ifPresentOrElse(player -> {
             player.setName(name);
             player.setTgId(tgId);
         }, () -> {
-            throw new NoSuchElementException();
+            throw new NoSuchElementException("Player with ID " + id + " not found");
         });
     }
 

@@ -25,6 +25,6 @@ public class Player {
     private String name;
 
     @Column(name = "tg_id")
-    private Integer tgId;
+    private Long tgId;
 
 }

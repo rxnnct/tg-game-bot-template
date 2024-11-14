@@ -46,7 +46,9 @@ public class TelegramBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         try {
             SendMessage sendMessage = messagingService.receiveMessage(update);
-            execute(sendMessage);
+            if (sendMessage != null) {
+                execute(sendMessage);
+            }
         } catch (TelegramApiException e) {
             log.error("PROBLEM IN: TelegramBot.onUpdateReceived");
         }

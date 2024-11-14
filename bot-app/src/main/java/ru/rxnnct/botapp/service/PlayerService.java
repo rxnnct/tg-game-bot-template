@@ -5,11 +5,11 @@ import ru.rxnnct.botapp.entity.Player;
 
 public interface PlayerService {
 
-    Player createPlayer(String name, Integer tgId);
+    Player createPlayer(String name, Long tgId);
 
     Optional<Player> findPlayer(int playerId);
 
-    void updatePlayer(Integer id, String name, Integer tgId);
+    void updatePlayer(Integer id, String name, Long tgId);
 
     void deletePlayer(Integer id);
 
