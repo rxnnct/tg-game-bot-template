@@ -5,9 +5,9 @@ import ru.rxnnct.botapp.entity.Player;
 
 public interface PlayerService {
 
-    Player createPlayer(String name, Long tgId);
+    Player createOrUpdatePlayer(String name, Long tgId);
 
-    Optional<Player> findPlayer(int playerId);
+    Optional<Player> findPlayerByTgId(long playerTgId);
 
     void updatePlayer(Integer id, String name, Long tgId);
 
