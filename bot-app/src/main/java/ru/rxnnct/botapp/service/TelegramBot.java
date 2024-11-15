@@ -2,6 +2,7 @@ package ru.rxnnct.botapp.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -45,12 +46,15 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         try {
-            SendMessage sendMessage = messagingService.receiveMessage(update);
+            String languageCode = update.getMessage().getFrom().getLanguageCode();
+            Locale locale = Locale.forLanguageTag(languageCode != null ? languageCode : "en");
+            SendMessage sendMessage = messagingService.receiveMessage(update, locale);
             if (sendMessage != null) {
                 execute(sendMessage);
             }
         } catch (TelegramApiException e) {
-            log.error("PROBLEM IN: TelegramBot.onUpdateReceived");
+            log.error("PROBLEM IN: TelegramBot.onUpdateReceived", e);
         }
     }
+
 }
