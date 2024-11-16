@@ -30,6 +30,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         commands.add(new BotCommand("/start", "[description]"));
         commands.add(new BotCommand("/set_name", "[description]"));
         commands.add(new BotCommand("/player_info", "[description]"));
+        commands.add(new BotCommand("/help", "[description]"));
 
         try {
             this.execute(new SetMyCommands(commands, new BotCommandScopeDefault(), null));

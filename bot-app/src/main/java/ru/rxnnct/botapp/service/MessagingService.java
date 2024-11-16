@@ -29,6 +29,8 @@ public class MessagingService {
         String responseMessage;
         if (text.startsWith("/set_name")) {
             responseMessage = handleSetName(text, chatId, locale);
+        } else if ("/help".equals(text)) {
+            responseMessage = messageSource.getMessage("bot.help", null, locale);
         } else if ("/player_info".equals(text)) {
             responseMessage = handlePlayerInfo(chatId, locale);
         } else if ("/start".equals(text)) {
