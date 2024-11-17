@@ -49,7 +49,8 @@ public class MessagingService {
         }
 
         String playerName = parts[1].trim();
-        if (playerName.length() < 3 || playerName.contains(" ")) {
+        if (playerName.length() < 3 || playerName.contains(" ") || !playerName.matches(
+            "[a-zA-Z0-9]*")) {
             return messageSource.getMessage("bot.player.invalid_name", null, locale);
         }
 
