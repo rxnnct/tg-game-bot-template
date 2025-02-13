@@ -1,0 +1,19 @@
+bot:
+  name: ${GAME_APP_BOT_NAME}
+  token: ${GAME_APP_BOT_TOKEN}
+spring:
+  datasource:
+    url: ${GAME_APP_DB_URL}
+    username: ${GAME_APP_DB_USERNAME}
+    password: ${GAME_APP_DB_PASSWORD}
+  flyway:
+    schemas:
+      - public
+      - game_app
+  jpa:
+    show-sql: true
+server:
+  port: 8081
+logging:
+  level:
+    sql: info
