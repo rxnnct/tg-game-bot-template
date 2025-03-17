@@ -1,8 +1,8 @@
-package ru.rxnnct.gameapp.tgbot.repository;
+package ru.rxnnct.gameapp.core.repository;
 
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
-import ru.rxnnct.gameapp.tgbot.entity.Player;
+import ru.rxnnct.gameapp.core.entity.Player;
 
 public interface PlayerRepository extends CrudRepository<Player, Integer> {
 

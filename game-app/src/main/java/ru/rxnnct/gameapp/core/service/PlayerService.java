@@ -1,4 +1,4 @@
-package ru.rxnnct.gameapp.tgbot.service;
+package ru.rxnnct.gameapp.core.service;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.rxnnct.gameapp.tgbot.entity.Player;
-import ru.rxnnct.gameapp.tgbot.repository.PlayerRepository;
+import ru.rxnnct.gameapp.core.entity.Player;
+import ru.rxnnct.gameapp.core.repository.PlayerRepository;
 
 @Service
 @RequiredArgsConstructor

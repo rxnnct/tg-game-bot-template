@@ -1,4 +1,4 @@
-package ru.rxnnct.gameapp.tgbot.entity;
+package ru.rxnnct.gameapp.core.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
