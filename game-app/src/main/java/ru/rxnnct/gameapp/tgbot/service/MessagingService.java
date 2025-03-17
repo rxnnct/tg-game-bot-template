@@ -16,6 +16,9 @@ public class MessagingService {
 
     private final PlayerService playerService;
     private final MessageSource messageSource;
+    private final MenuService menuService;
+
+//    private final KeyboardService keyboardService;
 
     public SendMessage receiveMessage(Update update, Locale locale) {
         if (!update.hasMessage() || !update.getMessage().hasText()) {
@@ -34,12 +37,14 @@ public class MessagingService {
         } else if ("/player_info".equals(text)) {
             responseMessage = handlePlayerInfo(chatId, locale);
         } else if ("/start".equals(text)) {
-            responseMessage = messageSource.getMessage("bot.greeting", null, locale);
+            responseMessage = handleStart(chatId, locale);
         } else {
             responseMessage = messageSource.getMessage("bot.unknown_command", null, locale);
         }
 
-        return buildSendMessage(chatId, responseMessage);
+        SendMessage sendMessage = buildSendMessage(chatId, responseMessage);
+//        sendMessage.setReplyMarkup(keyboardService.createMainMenuKeyboard(menuState));
+        return sendMessage;
     }
 
     private String handleSetName(String text, Long chatId, Locale locale) {
@@ -64,6 +69,14 @@ public class MessagingService {
             return messageSource.getMessage("bot.player.name_exists", new Object[]{playerName},
                 locale);
         }
+    }
+
+    private String handleStart(Long chatId, Locale locale) {
+        var player = playerService.findPlayerByTgId(chatId);
+        return player
+            .map(p -> messageSource.getMessage("bot.greeting_name", new Object[]{p.getName()},
+                locale))
+            .orElseGet(() -> messageSource.getMessage("bot.greeting", null, locale));
     }
 
     private String handlePlayerInfo(Long chatId, Locale locale) {
