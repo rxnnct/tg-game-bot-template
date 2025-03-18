@@ -1,6 +1,8 @@
 package ru.rxnnct.gameapp.tgbot.service;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,9 @@ public class MessagingService {
     private final MessageSource messageSource;
     private final KeyboardService keyboardService;
 
+    // Храним состояние регистрации для каждого пользователя
+    private final Map<Long, Boolean> registrationInProgress = new HashMap<>();
+
     public SendMessage receiveMessage(Update update, Locale locale) {
         if (!update.hasMessage() || !update.getMessage().hasText()) {
             log.warn("Update does not contain a valid text message: {}", update);
@@ -33,29 +38,55 @@ public class MessagingService {
         Optional<Player> playerOpt = playerService.findPlayerByTgId(tgId);
         boolean isRegistered = playerOpt.map(Player::getIsRegistered).orElse(false);
 
-        String responseMessage;
-
-        if ("/start".equals(text)) {
-            responseMessage = handleStart(tgId, locale);
-            SendMessage sendMessage = buildSendMessage(tgId, responseMessage);
-            sendMessage.setReplyMarkup(keyboardService.createMenu(tgId, locale));
-            return sendMessage;
-        }
-
-        if (!isRegistered) {
+        if (registrationInProgress.getOrDefault(tgId, false)) {
             return handleNicknameInput(text, tgId, locale);
         }
 
+        if ("/start".equals(text)) {
+            return handleStart(tgId, locale);
+        }
+
+        if (!isRegistered) {
+            if (isCommand(text, "bot.menu.set_name", locale)) {
+                registrationInProgress.put(tgId, true); // Начинаем процесс регистрации
+                return handleRegistrationStart(tgId, locale);
+            } else if (isCommand(text, "bot.menu.help", locale) || "/help".equals(text)) {
+                return handleHelp(tgId, locale);
+            } else {
+                return handleUnknownCommand(tgId, locale);
+            }
+        }
+
         if (isCommand(text, "bot.menu.help", locale) || "/help".equals(text)) {
-            responseMessage = messageSource.getMessage("bot.help", null, locale);
-        } else if (isCommand(text, "bot.menu.set_name", locale)) {
-            responseMessage = messageSource.getMessage("bot.player.enter_name", null, locale);
+            return handleHelp(tgId, locale);
+        } else if (isCommand(text, "bot.menu.player_info", locale)) {
+            return handlePlayerInfo(tgId, locale);
         } else {
-            responseMessage = handleRegisteredUserCommands(text, tgId, locale);
+            return handleUnknownCommand(tgId, locale);
+        }
+    }
+
+    private SendMessage handleStart(Long tgId, Locale locale) {
+        Optional<Player> playerOpt = playerService.findPlayerByTgId(tgId);
+        boolean isRegistered = playerOpt.map(Player::getIsRegistered).orElse(false);
+
+        String responseMessage;
+        if (isRegistered) {
+            responseMessage = messageSource.getMessage("bot.greeting_name",
+                new Object[]{playerOpt.get().getName()}, locale);
+        } else {
+            responseMessage = messageSource.getMessage("bot.greeting", null, locale);
         }
 
         SendMessage sendMessage = buildSendMessage(tgId, responseMessage);
         sendMessage.setReplyMarkup(keyboardService.createMenu(tgId, locale));
+        return sendMessage;
+    }
+
+    private SendMessage handleRegistrationStart(Long tgId, Locale locale) {
+        String responseMessage = messageSource.getMessage("bot.player.enter_name", null, locale);
+        SendMessage sendMessage = buildSendMessage(tgId, responseMessage);
+        sendMessage.setReplyMarkup(null);
         return sendMessage;
     }
 
@@ -69,6 +100,7 @@ public class MessagingService {
                 playerService.createOrUpdatePlayer(text, tgId, true);
                 responseMessage = messageSource.getMessage("bot.player.name_set",
                     new Object[]{text}, locale);
+                registrationInProgress.remove(tgId); // Завершаем процесс регистрации
             } catch (DataIntegrityViolationException e) {
                 log.error("Data integrity violation when setting name '{}': {}", text,
                     e.getMessage());
@@ -82,32 +114,23 @@ public class MessagingService {
         return sendMessage;
     }
 
-    private String handleRegisteredUserCommands(String text, Long tgId, Locale locale) {
-        if (isCommand(text, "bot.menu.player_info", locale)) {
-            return handlePlayerInfo(tgId, locale);
-        } else {
-            return messageSource.getMessage("bot.unknown_command", null, locale);
-        }
+    private SendMessage handleHelp(Long tgId, Locale locale) {
+        String responseMessage = messageSource.getMessage("bot.help", null, locale);
+        return buildSendMessage(tgId, responseMessage);
     }
 
-    private boolean isCommand(String text, String commandKey, Locale locale) {
-        return getLocalizedCommand(commandKey, locale).equals(text);
-    }
-
-    private String handleStart(Long chatId, Locale locale) {
-        var player = playerService.findPlayerByTgId(chatId);
-        return player.map(
-                value -> messageSource.getMessage("bot.greeting_name", new Object[]{value.getName()},
-                    locale))
-            .orElseGet(() -> messageSource.getMessage("bot.player.need_name", null, locale));
-    }
-
-    private String handlePlayerInfo(Long chatId, Locale locale) {
-        var player = playerService.findPlayerByTgId(chatId);
-        return player
+    private SendMessage handlePlayerInfo(Long tgId, Locale locale) {
+        var player = playerService.findPlayerByTgId(tgId);
+        String responseMessage = player
             .map(p -> messageSource.getMessage("bot.player.player_info", new Object[]{p.getName()},
                 locale))
             .orElseGet(() -> messageSource.getMessage("bot.player.player_not_found", null, locale));
+        return buildSendMessage(tgId, responseMessage);
+    }
+
+    private SendMessage handleUnknownCommand(Long tgId, Locale locale) {
+        String responseMessage = messageSource.getMessage("bot.unknown_command", null, locale);
+        return buildSendMessage(tgId, responseMessage);
     }
 
     private SendMessage buildSendMessage(Long chatId, String responseMessage) {
@@ -115,6 +138,10 @@ public class MessagingService {
         message.setChatId(chatId);
         message.setText(responseMessage);
         return message;
+    }
+
+    private boolean isCommand(String text, String commandKey, Locale locale) {
+        return getLocalizedCommand(commandKey, locale).equals(text);
     }
 
     private String getLocalizedCommand(String commandKey, Locale locale) {
