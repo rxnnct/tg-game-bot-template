@@ -23,7 +23,6 @@ public class MessagingService {
     private final MessageSource messageSource;
     private final KeyboardService keyboardService;
 
-    // Храним состояние регистрации для каждого пользователя
     private final Map<Long, Boolean> registrationInProgress = new HashMap<>();
 
     public SendMessage receiveMessage(Update update, Locale locale) {
@@ -48,7 +47,7 @@ public class MessagingService {
 
         if (!isRegistered) {
             if (isCommand(text, "bot.menu.set_name", locale)) {
-                registrationInProgress.put(tgId, true); // Начинаем процесс регистрации
+                registrationInProgress.put(tgId, true);
                 return handleRegistrationStart(tgId, locale);
             } else if (isCommand(text, "bot.menu.help", locale) || "/help".equals(text)) {
                 return handleHelp(tgId, locale);
@@ -100,7 +99,7 @@ public class MessagingService {
                 playerService.createOrUpdatePlayer(text, tgId, true);
                 responseMessage = messageSource.getMessage("bot.player.name_set",
                     new Object[]{text}, locale);
-                registrationInProgress.remove(tgId); // Завершаем процесс регистрации
+                registrationInProgress.remove(tgId);
             } catch (DataIntegrityViolationException e) {
                 log.error("Data integrity violation when setting name '{}': {}", text,
                     e.getMessage());
