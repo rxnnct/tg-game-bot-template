@@ -12,10 +12,10 @@ spring:
       - game_app
   jpa:
     show-sql: true
-#  data:
-#    redis:
-#      host: ${GAME_APP_REDIS_HOST}
-#      port: ${GAME_APP_REDIS_PORT}
+  data:
+    redis:
+      host: ${GAME_APP_REDIS_HOST}
+      port: ${GAME_APP_REDIS_PORT}
 server:
   port: 8081
 logging:

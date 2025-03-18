@@ -1,8 +1,6 @@
 package ru.rxnnct.gameapp.tgbot.service;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +20,7 @@ public class MessagingService {
     private final PlayerService playerService;
     private final MessageSource messageSource;
     private final KeyboardService keyboardService;
-
-    private final Map<Long, Boolean> registrationInProgress = new HashMap<>();
+    private final MenuService menuService;
 
     public SendMessage receiveMessage(Update update, Locale locale) {
         if (!update.hasMessage() || !update.getMessage().hasText()) {
@@ -37,7 +34,7 @@ public class MessagingService {
         Optional<Player> playerOpt = playerService.findPlayerByTgId(tgId);
         boolean isRegistered = playerOpt.map(Player::getIsRegistered).orElse(false);
 
-        if (registrationInProgress.getOrDefault(tgId, false)) {
+        if (menuService.isRegistrationInProgress(tgId)) {
             return handleNicknameInput(text, tgId, locale);
         }
 
@@ -47,7 +44,7 @@ public class MessagingService {
 
         if (!isRegistered) {
             if (isCommand(text, "bot.menu.set_name", locale)) {
-                registrationInProgress.put(tgId, true);
+                menuService.setRegistrationInProgress(tgId, true);
                 return handleRegistrationStart(tgId, locale);
             } else if (isCommand(text, "bot.menu.help", locale) || "/help".equals(text)) {
                 return handleHelp(tgId, locale);
@@ -99,7 +96,7 @@ public class MessagingService {
                 playerService.createOrUpdatePlayer(text, tgId, true);
                 responseMessage = messageSource.getMessage("bot.player.name_set",
                     new Object[]{text}, locale);
-                registrationInProgress.remove(tgId);
+                menuService.setRegistrationInProgress(tgId, false);
             } catch (DataIntegrityViolationException e) {
                 log.error("Data integrity violation when setting name '{}': {}", text,
                     e.getMessage());
