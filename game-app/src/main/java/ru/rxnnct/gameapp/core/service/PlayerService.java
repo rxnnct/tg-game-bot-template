@@ -16,15 +16,17 @@ public class PlayerService {
     private final PlayerRepository playerRepository;
 
     @Transactional
-    public Player createOrUpdatePlayer(String name, Long tgId) {
+    public Player createOrUpdatePlayer(String name, Long tgId, boolean isRegistered) {
         try {
             return playerRepository.findByTgId(tgId)
                 .map(player -> {
                     player.setName(name);
+                    player.setIsRegistered(isRegistered); // Обновляем флаг регистрации
                     return playerRepository.save(player);
                 })
                 .orElseGet(() -> {
-                    Player newPlayer = new Player(null, name, tgId, true);
+                    Player newPlayer = new Player(null, name, tgId,
+                        isRegistered); // Создаем с флагом
                     return playerRepository.save(newPlayer);
                 });
         } catch (DataIntegrityViolationException e) {
