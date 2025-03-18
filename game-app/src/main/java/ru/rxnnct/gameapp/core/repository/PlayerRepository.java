@@ -8,4 +8,6 @@ public interface PlayerRepository extends CrudRepository<Player, Integer> {
 
     Optional<Player> findByTgId(Long tgId);
 
+    boolean existsByTgIdAndIsRegisteredTrue(Long tgId);
+
 }

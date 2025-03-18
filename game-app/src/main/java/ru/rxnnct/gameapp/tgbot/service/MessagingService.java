@@ -17,9 +17,8 @@ public class MessagingService {
 
     private final PlayerService playerService;
     private final MessageSource messageSource;
-    private final MenuService menuService;
-
-//    private final KeyboardService keyboardService;
+    private final KeyboardService keyboardService;
+//    private final MenuService menuService;
 
     public SendMessage receiveMessage(Update update, Locale locale) {
         if (!update.hasMessage() || !update.getMessage().hasText()) {
@@ -28,29 +27,49 @@ public class MessagingService {
         }
 
         var text = update.getMessage().getText();
-        var chatId = update.getMessage().getChatId();
+        var tgId = update.getMessage().getChatId();
 
         String responseMessage;
-        if (text.startsWith("/set_name")) {
-            responseMessage = handleSetName(text, chatId, locale);
-        } else if ("/help".equals(text)) {
+
+        if (isCommand(text, "bot.menu.help", locale) || "/help".equals(text)) {
             responseMessage = messageSource.getMessage("bot.help", null, locale);
-        } else if ("/player_info".equals(text)) {
-            responseMessage = handlePlayerInfo(chatId, locale);
         } else if ("/start".equals(text)) {
-            responseMessage = handleStart(chatId, locale);
+            responseMessage = handleStart(tgId, locale);
+        } else if (playerService.isPlayerRegistered(tgId)) {
+            responseMessage = handleRegisteredUserCommands(text, tgId, locale);
         } else {
-            responseMessage = messageSource.getMessage("bot.unknown_command", null, locale);
+            responseMessage = handleUnregisteredUserCommands(text, tgId, locale);
         }
 
-        SendMessage sendMessage = buildSendMessage(chatId, responseMessage);
-//        sendMessage.setReplyMarkup(keyboardService.createMainMenuKeyboard(menuState));
+        SendMessage sendMessage = buildSendMessage(tgId, responseMessage);
+        sendMessage.setReplyMarkup(keyboardService.createMenu(tgId, locale));
         return sendMessage;
     }
 
+    private String handleRegisteredUserCommands(String text, Long tgId, Locale locale) {
+        if (isCommand(text, "bot.menu.player_info", locale)) {
+            return handlePlayerInfo(tgId, locale);
+        } else {
+            return messageSource.getMessage("bot.unknown_command", null, locale);
+        }
+    }
+
+    private String handleUnregisteredUserCommands(String text, Long tgId, Locale locale) {
+        if (text.startsWith(getLocalizedCommand("bot.menu.set_name", locale))) {
+            return handleSetName(text, tgId, locale);
+        } else {
+            return messageSource.getMessage("bot.unknown_command", null, locale);
+        }
+    }
+
+    private boolean isCommand(String text, String commandKey, Locale locale) {
+        return getLocalizedCommand(commandKey, locale).equals(text);
+    }
+
     private String handleSetName(String text, Long chatId, Locale locale) {
+        String localizedCommand = getLocalizedCommand("bot.menu.set_name", locale);
         String[] parts = text.split(" ", 2);
-        if (parts.length < 2) {
+        if (parts.length < 2 || !parts[0].equals(localizedCommand)) {
             return messageSource.getMessage("bot.player.need_name", null, locale);
         }
 
@@ -93,5 +112,9 @@ public class MessagingService {
         message.setChatId(chatId);
         message.setText(responseMessage);
         return message;
+    }
+
+    private String getLocalizedCommand(String commandKey, Locale locale) {
+        return messageSource.getMessage(commandKey, null, locale);
     }
 }

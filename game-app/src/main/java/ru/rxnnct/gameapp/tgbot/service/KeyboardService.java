@@ -2,37 +2,46 @@ package ru.rxnnct.gameapp.tgbot.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import ru.rxnnct.gameapp.core.service.PlayerService;
 
 @Service
 @RequiredArgsConstructor
 public class KeyboardService {
 
-//    public ReplyKeyboardMarkup createMainMenuKeyboard(MenuState menuState) {
-//        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-//        keyboardMarkup.setResizeKeyboard(true);
-//        keyboardMarkup.setOneTimeKeyboard(false);
-//
-//        List<KeyboardRow> keyboard = new ArrayList<>();
-//
-//        KeyboardRow row1 = new KeyboardRow();
-//        row1.add("/start");
-//        row1.add("/help");
-//
-//        KeyboardRow row2 = new KeyboardRow();
-//        if (menuState == MenuState.NAME_NOT_SET) {
-//            row2.add("/set_name");
-//        } else {
-//            row2.add("/player_info");
-//        }
-//
-//        keyboard.add(row1);
-//        keyboard.add(row2);
-//
-//        keyboardMarkup.setKeyboard(keyboard);
-//        return keyboardMarkup;
-//    }
+    private final PlayerService playerService;
+    private final MessageSource messageSource;
+
+    public ReplyKeyboardMarkup createMenu(Long tgId, Locale locale) {
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(false);
+
+        List<KeyboardRow> keyboard = new ArrayList<>();
+
+        if (playerService.isPlayerRegistered(tgId)) {
+            KeyboardRow row1 = new KeyboardRow();
+            row1.add(messageSource.getMessage("bot.menu.player_info", null, locale));
+
+            KeyboardRow row2 = new KeyboardRow();
+            row2.add(messageSource.getMessage("bot.menu.help", null, locale));
+
+            keyboard.add(row1);
+            keyboard.add(row2);
+        } else {
+            KeyboardRow row = new KeyboardRow();
+            row.add(messageSource.getMessage("bot.menu.set_name", null, locale));
+            row.add(messageSource.getMessage("bot.menu.help", null, locale));
+
+            keyboard.add(row);
+        }
+
+        keyboardMarkup.setKeyboard(keyboard);
+        return keyboardMarkup;
+    }
 }

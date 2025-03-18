@@ -27,4 +27,7 @@ public class Player {
     @Column(name = "tg_id")
     private Long tgId;
 
+    @Column(name = "is_registered")
+    private Boolean isRegistered;
+
 }

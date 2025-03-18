@@ -24,7 +24,7 @@ public class PlayerService {
                     return playerRepository.save(player);
                 })
                 .orElseGet(() -> {
-                    Player newPlayer = new Player(null, name, tgId);
+                    Player newPlayer = new Player(null, name, tgId, true);
                     return playerRepository.save(newPlayer);
                 });
         } catch (DataIntegrityViolationException e) {
@@ -35,6 +35,10 @@ public class PlayerService {
 
     public Optional<Player> findPlayerByTgId(long tgId) {
         return this.playerRepository.findByTgId(tgId);
+    }
+
+    public boolean isPlayerRegistered(long tgId) {
+        return playerRepository.existsByTgIdAndIsRegisteredTrue(tgId);
     }
 
     @Transactional
