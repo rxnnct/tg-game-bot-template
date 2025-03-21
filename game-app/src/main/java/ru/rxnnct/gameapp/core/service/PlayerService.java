@@ -24,23 +24,17 @@ public class PlayerService {
     @Transactional
     public void createOrUpdatePlayer(String name, Long tgId, boolean isRegistered) {
         try {
-            playerRepository.findByTgId(tgId)
-                .map(player -> {
-                    player.setName(name);
-                    player.setIsRegistered(isRegistered);
-                    return playerRepository.save(player);
-                })
-                .orElseGet(() -> {
-                    Player newPlayer = new Player(
-                        null,
-                        tgId,
-                        name,
-                        isRegistered,
-                        0L,
-                        LocalDateTime.now(),
-                        null);
-                    return playerRepository.save(newPlayer);
-                });
+
+            Player newPlayer = new Player(
+                null,
+                tgId,
+                name,
+                isRegistered,
+                0L,
+                LocalDateTime.now(),
+                null);
+            playerRepository.save(newPlayer);
+            createCharacter(newPlayer.getId());
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException(
                 "This name is already taken. Please choose another one.");
@@ -56,9 +50,9 @@ public class PlayerService {
     }
 
     @Transactional
-    public void createCharacter(Long tgId) {
-        this.playerRepository.findByTgId(tgId).ifPresentOrElse(player -> {
-            var newCharacter = gameCharacterService.createCharacter(player);
+    public void createCharacter(long id) {
+        this.playerRepository.findById(id).ifPresentOrElse(player -> {
+            GameCharacter newCharacter = gameCharacterService.createCharacter(player);
 
             List<GameCharacter> characters = player.getCharacters();
             if (characters == null) {
@@ -71,7 +65,7 @@ public class PlayerService {
 
             playerRepository.save(player);
         }, () -> {
-            throw new NoSuchElementException("Player with ID " + tgId + " not found");
+            throw new NoSuchElementException("Player with ID " + id + " not found");
         });
     }
 

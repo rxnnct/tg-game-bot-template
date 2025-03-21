@@ -94,7 +94,6 @@ public class MessagingService {
         } else {
             try {
                 playerService.createOrUpdatePlayer(text, tgId, true);
-                playerService.createCharacter(tgId);
                 responseMessage = messageSource.getMessage("bot.player.name_set",
                     new Object[]{text}, locale);
                 menuService.setRegistrationInProgress(tgId, false);
