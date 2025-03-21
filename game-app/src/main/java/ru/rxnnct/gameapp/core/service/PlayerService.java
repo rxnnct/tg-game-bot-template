@@ -1,5 +1,6 @@
 package ru.rxnnct.gameapp.core.service;
 
+import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +22,18 @@ public class PlayerService {
             return playerRepository.findByTgId(tgId)
                 .map(player -> {
                     player.setName(name);
-                    player.setIsRegistered(isRegistered); // Обновляем флаг регистрации
+                    player.setIsRegistered(isRegistered);
                     return playerRepository.save(player);
                 })
                 .orElseGet(() -> {
-                    Player newPlayer = new Player(null, name, tgId,
-                        isRegistered); // Создаем с флагом
+                    Player newPlayer = new Player(
+                        null,
+                        tgId,
+                        name,
+                        isRegistered,
+                        0L,
+                        LocalDateTime.now(),
+                        null);
                     return playerRepository.save(newPlayer);
                 });
         } catch (DataIntegrityViolationException e) {
