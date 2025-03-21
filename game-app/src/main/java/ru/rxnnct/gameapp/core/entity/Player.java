@@ -41,7 +41,7 @@ public class Player {
     @Column(name = "balance")
     private Long balance;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", columnDefinition = "timestamp")
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

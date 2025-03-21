@@ -34,7 +34,7 @@ public class GameCharacter {
     @Column(name = "currency")
     private Long currency;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", columnDefinition = "timestamp")
     private LocalDateTime createdAt;
 
     @ManyToOne
