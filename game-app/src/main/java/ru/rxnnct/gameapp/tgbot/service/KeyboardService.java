@@ -26,9 +26,11 @@ public class KeyboardService {
 
         if (playerService.isPlayerRegistered(tgId)) {
             KeyboardRow row1 = new KeyboardRow();
-            row1.add(messageSource.getMessage("bot.menu.player_info", null, locale));
+            row1.add(messageSource.getMessage("bot.menu.pve", null, locale));
+            row1.add(messageSource.getMessage("bot.menu.pvp", null, locale));
 
             KeyboardRow row2 = new KeyboardRow();
+            row2.add(messageSource.getMessage("bot.menu.player_info", null, locale));
             row2.add(messageSource.getMessage("bot.menu.help", null, locale));
 
             keyboard.add(row1);
