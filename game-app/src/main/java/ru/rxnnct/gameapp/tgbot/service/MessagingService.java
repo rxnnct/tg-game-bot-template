@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.rxnnct.gameapp.core.entity.Player;
+import ru.rxnnct.gameapp.core.exceptions.PlayerNotFoundException;
 import ru.rxnnct.gameapp.core.service.PlayerService;
+import ru.rxnnct.gameapp.game.exceptions.NoCharactersException;
+import ru.rxnnct.gameapp.game.service.PveService;
 
 @Service
 @Slf4j
@@ -18,6 +21,7 @@ import ru.rxnnct.gameapp.core.service.PlayerService;
 public class MessagingService {
 
     private final PlayerService playerService;
+    private final PveService pveService;
     private final MessageSource messageSource;
     private final KeyboardService keyboardService;
     private final MenuService menuService;
@@ -57,6 +61,8 @@ public class MessagingService {
             return handleHelp(tgId, locale);
         } else if (isCommand(text, "bot.menu.player_info", locale)) {
             return handlePlayerInfo(tgId, locale);
+        } else if (isCommand(text, "bot.menu.pve", locale)) {
+            return handlePve(tgId, locale);
         } else {
             return handleUnknownCommand(tgId, locale);
         }
@@ -122,6 +128,39 @@ public class MessagingService {
                 locale))
             .orElseGet(() -> messageSource.getMessage("bot.player.player_not_found", null, locale));
         return buildSendMessage(tgId, responseMessage);
+    }
+
+    private SendMessage handlePve(Long tgId, Locale locale) {
+        try {
+            Long income = pveService.exploreDungeon(tgId);
+            String responseMessage = messageSource.getMessage(
+                "bot.character.pve_result",
+                new Object[]{income},
+                locale
+            );
+            return buildSendMessage(tgId, responseMessage);
+        } catch (PlayerNotFoundException e) {
+            String errorMessage = messageSource.getMessage(
+                "bot.error.player_not_found",
+                null,
+                locale
+            );
+            return buildSendMessage(tgId, errorMessage);
+        } catch (NoCharactersException e) {
+            String errorMessage = messageSource.getMessage(
+                "bot.error.no_characters",
+                null,
+                locale
+            );
+            return buildSendMessage(tgId, errorMessage);
+        } catch (Exception e) {
+            String errorMessage = messageSource.getMessage(
+                "bot.error.general",
+                null,
+                locale
+            );
+            return buildSendMessage(tgId, errorMessage);
+        }
     }
 
     private SendMessage handleUnknownCommand(Long tgId, Locale locale) {

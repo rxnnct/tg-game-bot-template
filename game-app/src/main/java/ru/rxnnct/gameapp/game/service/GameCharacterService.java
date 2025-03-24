@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.rxnnct.gameapp.core.entity.Player;
 import ru.rxnnct.gameapp.game.entity.GameCharacter;
+import ru.rxnnct.gameapp.game.exceptions.NoCharactersException;
 import ru.rxnnct.gameapp.game.repository.GameCharacterRepository;
 
 @Service
@@ -25,6 +26,17 @@ public class GameCharacterService {
 
         gameCharacterRepository.save(newCharacter);
         return newCharacter;
+    }
+
+    @Transactional
+    public void addCurrency(Long gameCharacterId, long currency) {
+        GameCharacter gameCharacter = gameCharacterRepository.findById(gameCharacterId)
+            .orElseThrow(() -> new NoCharactersException(
+                "GameCharacter not found with id: " + gameCharacterId));
+
+        long newCurrency = Math.addExact(gameCharacter.getCurrency(), currency);
+        gameCharacter.setCurrency(newCurrency);
+
     }
 
 }
