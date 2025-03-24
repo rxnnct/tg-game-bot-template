@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import ru.rxnnct.gameapp.game.entity.GameCharacter;
 
 @Repository
-public interface GameCharacterRepository extends JpaRepository<GameCharacter, Long> {
+public interface GameCharacterExampleRepository extends JpaRepository<GameCharacter, Long> {
 
 }

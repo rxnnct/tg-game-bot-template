@@ -1,21 +1,18 @@
 package ru.rxnnct.gameapp.game.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.rxnnct.gameapp.core.entity.Player;
 import ru.rxnnct.gameapp.game.entity.GameCharacter;
-import ru.rxnnct.gameapp.game.repository.GameCharacterRepository;
+import ru.rxnnct.gameapp.game.repository.GameCharacterExampleRepository;
 
 @Service
 @RequiredArgsConstructor
-public class GameCharacterService {
+public class GameCharacterExampleService {
 
-    private final GameCharacterRepository gameCharacterRepository;
+    private final GameCharacterExampleRepository gameCharacterExampleRepository;
 
     @Transactional
     public GameCharacter createCharacter(Player player) {
@@ -26,7 +23,7 @@ public class GameCharacterService {
         newCharacter.setCreatedAt(LocalDateTime.now());
         newCharacter.setPlayer(player);
 
-        gameCharacterRepository.save(newCharacter);
+        gameCharacterExampleRepository.save(newCharacter);
         return newCharacter;
     }
 
