@@ -9,7 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.rxnnct.gameapp.core.dto.PlayerInfoDto;
 import ru.rxnnct.gameapp.core.entity.Player;
+import ru.rxnnct.gameapp.core.exceptions.NoCharactersException;
+import ru.rxnnct.gameapp.core.exceptions.PlayerNotFoundException;
 import ru.rxnnct.gameapp.core.repository.PlayerRepository;
 import ru.rxnnct.gameapp.game.entity.GameCharacter;
 import ru.rxnnct.gameapp.game.service.GameCharacterService;
@@ -46,6 +49,25 @@ public class PlayerService {
 
     public boolean isPlayerRegistered(long tgId) {
         return playerRepository.existsByTgIdAndIsRegisteredTrue(tgId);
+    }
+
+    @Transactional
+    public Optional<PlayerInfoDto> getPlayerInfo(long tgId) {
+        Player player = playerRepository.findByTgId(tgId)
+            .orElseThrow(() -> new PlayerNotFoundException("Player not found with tgId: " + tgId));
+
+        if (player.getCharacters() == null || player.getCharacters().isEmpty()) {
+            throw new NoCharactersException("Player has no characters");
+        }
+
+        GameCharacter character = player.getCharacters().getFirst();
+
+        PlayerInfoDto playerInfoDto = new PlayerInfoDto();
+        playerInfoDto.setName(player.getName());
+        playerInfoDto.setBalance(player.getBalance());
+        playerInfoDto.setCurrency(character.getCurrency());
+
+        return Optional.of(playerInfoDto);
     }
 
     @Transactional

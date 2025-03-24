@@ -122,9 +122,10 @@ public class MessagingService {
     }
 
     private SendMessage handlePlayerInfo(Long tgId, Locale locale) {
-        var player = playerService.findPlayerByTgId(tgId);
-        String responseMessage = player
-            .map(p -> messageSource.getMessage("bot.player.player_info", new Object[]{p.getName()},
+        var playerInfo = playerService.getPlayerInfo(tgId);
+        String responseMessage = playerInfo
+            .map(p -> messageSource.getMessage("bot.player.player_info",
+                new Object[]{p.getName(), p.getBalance(), p.getCurrency()},
                 locale))
             .orElseGet(() -> messageSource.getMessage("bot.player.player_not_found", null, locale));
         return buildSendMessage(tgId, responseMessage);
