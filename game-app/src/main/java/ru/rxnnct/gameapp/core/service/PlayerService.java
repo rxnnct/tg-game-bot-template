@@ -12,14 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.rxnnct.gameapp.core.entity.Player;
 import ru.rxnnct.gameapp.core.repository.PlayerRepository;
 import ru.rxnnct.gameapp.game.entity.GameCharacter;
-import ru.rxnnct.gameapp.game.service.GameCharacterExampleService;
+import ru.rxnnct.gameapp.game.service.GameCharacterService;
 
 @Service
 @RequiredArgsConstructor
 public class PlayerService {
 
     private final PlayerRepository playerRepository;
-    private final GameCharacterExampleService gameCharacterExampleService;
+    private final GameCharacterService gameCharacterService;
 
     @Transactional
     public void createOrUpdatePlayer(String name, Long tgId, boolean isRegistered) {
@@ -51,7 +51,7 @@ public class PlayerService {
     @Transactional
     public void createCharacter(long id) {
         this.playerRepository.findById(id).ifPresentOrElse(player -> {
-            GameCharacter newCharacter = gameCharacterExampleService.createCharacter(player);
+            GameCharacter newCharacter = gameCharacterService.createCharacter(player);
 
             List<GameCharacter> characters = player.getCharacters();
             if (characters == null) {
