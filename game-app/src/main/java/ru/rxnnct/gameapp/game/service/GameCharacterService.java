@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.rxnnct.gameapp.core.entity.Player;
 import ru.rxnnct.gameapp.game.entity.GameCharacter;
-import ru.rxnnct.gameapp.game.exceptions.NoCharactersException;
+import ru.rxnnct.gameapp.core.exceptions.NoCharactersException;
 import ru.rxnnct.gameapp.game.repository.GameCharacterRepository;
 
 @Service

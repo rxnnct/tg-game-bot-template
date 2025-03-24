@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.rxnnct.gameapp.core.entity.Player;
 import ru.rxnnct.gameapp.core.exceptions.PlayerNotFoundException;
 import ru.rxnnct.gameapp.core.service.PlayerService;
-import ru.rxnnct.gameapp.game.exceptions.NoCharactersException;
+import ru.rxnnct.gameapp.core.exceptions.NoCharactersException;
 import ru.rxnnct.gameapp.game.service.PveService;
 
 @Service

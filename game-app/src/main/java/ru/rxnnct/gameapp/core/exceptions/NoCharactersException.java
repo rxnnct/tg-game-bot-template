@@ -1,4 +1,4 @@
-package ru.rxnnct.gameapp.game.exceptions;
+package ru.rxnnct.gameapp.core.exceptions;
 
 public class NoCharactersException extends RuntimeException {
 

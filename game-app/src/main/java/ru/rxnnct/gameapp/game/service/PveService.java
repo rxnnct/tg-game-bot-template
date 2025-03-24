@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.rxnnct.gameapp.core.entity.Player;
 import ru.rxnnct.gameapp.core.exceptions.PlayerNotFoundException;
 import ru.rxnnct.gameapp.core.service.PlayerService;
-import ru.rxnnct.gameapp.game.exceptions.NoCharactersException;
+import ru.rxnnct.gameapp.core.exceptions.NoCharactersException;
 
 @Service
 @RequiredArgsConstructor
