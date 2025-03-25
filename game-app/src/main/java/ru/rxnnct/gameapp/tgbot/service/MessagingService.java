@@ -133,14 +133,15 @@ public class MessagingService {
     }
 
     private SendMessage handlePve(Long tgId, Locale locale) {
-        schedulePveActivity(tgId, 5);
+        schedulePveActivity(tgId, 5, locale);
         String responseMessage = messageSource.getMessage("bot.character.pve_start", null, locale);
         return buildSendMessage(tgId, responseMessage);
     }
 
-    private void schedulePveActivity(Long tgId, long delayInSeconds) {
+    private void schedulePveActivity(Long tgId, long delayInSeconds, Locale locale) {
         long executionTime = System.currentTimeMillis() + (delayInSeconds * 1000);
-        redisTemplate.opsForZSet().add(DELAYED_TASKS_KEY, "pve_activity:" + tgId, executionTime);
+        String task = String.format("pve_activity:%d:%s", tgId, locale.toLanguageTag());
+        redisTemplate.opsForZSet().add(DELAYED_TASKS_KEY, task, executionTime);
     }
 
     private SendMessage handleUnknownCommand(Long tgId, Locale locale) {

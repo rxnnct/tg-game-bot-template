@@ -19,22 +19,19 @@ public class DelayedTaskService {
     @Scheduled(fixedRate = 2000)
     public void checkDelayedTasks() {
         long now = System.currentTimeMillis();
-        Locale locale = Locale.getDefault();
-
         Set<String> tasks = redisTemplate.opsForZSet().rangeByScore(DELAYED_TASKS_KEY, 0, now);
 
         if (tasks != null) {
             for (String task : tasks) {
                 if (task.startsWith("pve_activity:")) {
-                    String playerId = task.split(":")[1];
-                    processPveActivity(Long.valueOf(playerId), locale);
+                    String[] parts = task.split(":");
+                    Long tgId = Long.valueOf(parts[1]);
+                    Locale locale = Locale.forLanguageTag(parts[2]);
+
+                    autoMessagingService.handlePveResult(tgId, locale);
                     redisTemplate.opsForZSet().remove(DELAYED_TASKS_KEY, task);
                 }
             }
         }
-    }
-
-    private void processPveActivity(Long tgId, Locale locale) {
-        autoMessagingService.handlePveResult(tgId, locale);
     }
 }
