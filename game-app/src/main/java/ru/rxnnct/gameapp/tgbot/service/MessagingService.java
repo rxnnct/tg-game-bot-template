@@ -6,12 +6,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.rxnnct.gameapp.core.entity.Player;
 import ru.rxnnct.gameapp.core.service.PlayerService;
+import ru.rxnnct.gameapp.game.service.PveService;
 
 @Service
 @Slf4j
@@ -21,11 +21,9 @@ public class MessagingService {
     private final PlayerService playerService;
     private final KeyboardService keyboardService;
     private final MenuService menuService;
+    private final PveService pveService;
 
     private final MessageSource messageSource;
-    private final StringRedisTemplate redisTemplate;
-
-    private static final String DELAYED_TASKS_KEY = "delayed_tasks";
 
     public SendMessage receiveMessage(Update update, Locale locale) {
         if (!update.hasMessage() || !update.getMessage().hasText()) {
@@ -133,15 +131,9 @@ public class MessagingService {
     }
 
     private SendMessage handlePve(Long tgId, Locale locale) {
-        schedulePveActivity(tgId, 5, locale);
+        pveService.schedulePveActivity(tgId, locale);
         String responseMessage = messageSource.getMessage("bot.character.pve_start", null, locale);
         return buildSendMessage(tgId, responseMessage);
-    }
-
-    private void schedulePveActivity(Long tgId, long delayInSeconds, Locale locale) {
-        long executionTime = System.currentTimeMillis() + (delayInSeconds * 1000);
-        String task = String.format("pve_activity:%d:%s", tgId, locale.toLanguageTag());
-        redisTemplate.opsForZSet().add(DELAYED_TASKS_KEY, task, executionTime);
     }
 
     private SendMessage handleUnknownCommand(Long tgId, Locale locale) {

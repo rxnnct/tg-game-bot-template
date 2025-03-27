@@ -1,6 +1,7 @@
 package ru.rxnnct.gameapp.game.service;
 
 import java.time.Duration;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,9 @@ public class PveService {
     private final PlayerService playerService;
     private final StringRedisTemplate redisTemplate;
 
+    private static final String DELAYED_TASKS_KEY = "delayed_tasks";
+    private static final int PVE_ACTIVITY_DURATION = 5;
+
     @Transactional
     public Long exploreDungeon(Long tgId) {
         Player player = playerService.findPlayerByTgId(tgId)
@@ -34,10 +38,16 @@ public class PveService {
         return income;
     }
 
+    public void schedulePveActivity(Long tgId, Locale locale) {
+        long executionTime = System.currentTimeMillis() + (PVE_ACTIVITY_DURATION * 1000);
+        String task = String.format("pve_activity:%d:%s", tgId, locale.toLanguageTag());
+        redisTemplate.opsForZSet().add(DELAYED_TASKS_KEY, task, executionTime);
+    }
+
     public void setPveActivityInProgress(Long tgId, boolean inProgress, String pveActivityName) {
         String key = "%s:%d".formatted(pveActivityName, tgId);
         if (inProgress) {
-            redisTemplate.opsForValue().set(key, "true", Duration.ofMinutes(5));
+            redisTemplate.opsForValue().set(key, "true", Duration.ofMinutes(PVE_ACTIVITY_DURATION));
         } else {
             redisTemplate.delete(key);
         }
