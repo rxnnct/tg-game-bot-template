@@ -61,7 +61,11 @@ public class MessagingService {
         } else if (isCommand(text, "bot.menu.player_info", locale)) {
             return handlePlayerInfo(tgId, locale);
         } else if (isCommand(text, "bot.menu.pve", locale)) {
-            return handlePve(tgId, locale);
+            if (!pveService.isExamplePveActivityInProgress(tgId)) {
+                return handlePve(tgId, locale);
+            } else {
+                return null;
+            }
         } else {
             return handleUnknownCommand(tgId, locale);
         }
@@ -124,14 +128,14 @@ public class MessagingService {
         var playerInfo = playerService.getPlayerInfo(tgId);
         String responseMessage = playerInfo
             .map(p -> messageSource.getMessage("bot.player.player_info",
-                new Object[]{p.getName(), p.getBalance(), p.getCurrency()},
-                locale))
+                new Object[]{p.getName(), p.getBalance(), p.getCurrency()}, locale))
             .orElseGet(() -> messageSource.getMessage("bot.player.player_not_found", null, locale));
         return buildSendMessage(tgId, responseMessage);
     }
 
     private SendMessage handlePve(Long tgId, Locale locale) {
-        pveService.schedulePveActivity(tgId, locale);
+        pveService.scheduleExamplePveActivity(tgId, locale);
+        pveService.setExamplePveActivityInProgress(tgId, true);
         String responseMessage = messageSource.getMessage("bot.character.pve_start", null, locale);
         return buildSendMessage(tgId, responseMessage);
     }

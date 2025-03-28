@@ -23,7 +23,7 @@ public class DelayedTaskService {
 
         if (tasks != null) {
             for (String task : tasks) {
-                if (task.startsWith("pve_activity:")) {
+                if (task.startsWith("example_pve_activity:")) {
                     String[] parts = task.split(":");
                     Long tgId = Long.valueOf(parts[1]);
                     Locale locale = Locale.forLanguageTag(parts[2]);

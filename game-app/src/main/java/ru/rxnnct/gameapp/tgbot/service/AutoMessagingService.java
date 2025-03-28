@@ -22,7 +22,7 @@ public class AutoMessagingService {
 
     public void handlePveResult(Long tgId, Locale locale) {
         try {
-            Long income = pveService.exploreDungeon(tgId);
+            Long income = pveService.examplePveActivity(tgId);
             String responseMessage = messageSource.getMessage(
                 "bot.character.pve_result",
                 new Object[]{income},
@@ -62,6 +62,8 @@ public class AutoMessagingService {
             } catch (TelegramApiException ex) {
                 throw new RuntimeException(ex);
             }
+        } finally {
+            pveService.setExamplePveActivityInProgress(tgId, false);
         }
     }
 
