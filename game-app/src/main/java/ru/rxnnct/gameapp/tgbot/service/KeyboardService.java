@@ -30,7 +30,7 @@ public class KeyboardService {
             row1.add(messageSource.getMessage("bot.menu.pvp", null, locale));
 
             KeyboardRow row2 = new KeyboardRow();
-            row2.add(messageSource.getMessage("bot.menu.app_user_info", null, locale));
+            row2.add(messageSource.getMessage("bot.menu.info", null, locale));
             row2.add(messageSource.getMessage("bot.menu.help", null, locale));
 
             keyboard.add(row1);

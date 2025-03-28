@@ -58,8 +58,8 @@ public class MessagingService {
 
         if (isCommand(text, "bot.menu.help", locale) || "/help".equals(text)) {
             return handleHelp(tgId, locale);
-        } else if (isCommand(text, "bot.menu.app_user_info", locale)) {
-            return handleAppUserInfo(tgId, locale);
+        } else if (isCommand(text, "bot.menu.info", locale)) {
+            return handleInfo(tgId, locale);
         } else if (isCommand(text, "bot.menu.pve", locale)) {
             if (!pveService.isExamplePveActivityInProgress(tgId)) {
                 return handlePve(tgId, locale);
@@ -124,10 +124,10 @@ public class MessagingService {
         return buildSendMessage(tgId, responseMessage);
     }
 
-    private SendMessage handleAppUserInfo(Long tgId, Locale locale) {
-        var appUserInfo = appUserService.getAppUserInfo(tgId);
-        String responseMessage = appUserInfo
-            .map(p -> messageSource.getMessage("bot.app_user.app_user_info",
+    private SendMessage handleInfo(Long tgId, Locale locale) {
+        var info = appUserService.getInfo(tgId);
+        String responseMessage = info
+            .map(p -> messageSource.getMessage("bot.app_user.info",
                 new Object[]{p.getName(), p.getBalance(), p.getCurrency()}, locale))
             .orElseGet(() -> messageSource.getMessage("bot.app_user.app_user_not_found", null, locale));
         return buildSendMessage(tgId, responseMessage);

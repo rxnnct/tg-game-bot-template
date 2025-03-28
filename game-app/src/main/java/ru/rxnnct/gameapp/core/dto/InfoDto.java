@@ -3,7 +3,7 @@ package ru.rxnnct.gameapp.core.dto;
 import lombok.Data;
 
 @Data
-public class AppUserInfoDto {
+public class InfoDto {
 
     private String name;
     private Long balance;

@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.rxnnct.gameapp.core.dto.AppUserInfoDto;
+import ru.rxnnct.gameapp.core.dto.InfoDto;
 import ru.rxnnct.gameapp.core.entity.AppUser;
 import ru.rxnnct.gameapp.core.exceptions.NoCharactersException;
 import ru.rxnnct.gameapp.core.exceptions.AppUserNotFoundException;
@@ -57,7 +57,7 @@ public class AppUserService {
     }
 
     @Transactional
-    public Optional<AppUserInfoDto> getAppUserInfo(long tgId) {
+    public Optional<InfoDto> getInfo(long tgId) {
         AppUser appUser = appUserRepository.findByTgId(tgId)
             .orElseThrow(() -> new AppUserNotFoundException("User not found with tgId: " + tgId));
 
@@ -67,12 +67,12 @@ public class AppUserService {
 
         GameCharacter character = appUser.getCharacters().getFirst();
 
-        AppUserInfoDto appUserInfoDto = new AppUserInfoDto();
-        appUserInfoDto.setName(appUser.getName());
-        appUserInfoDto.setBalance(appUser.getBalance());
-        appUserInfoDto.setCurrency(character.getCurrency());
+        InfoDto infoDto = new InfoDto();
+        infoDto.setName(appUser.getName());
+        infoDto.setBalance(appUser.getBalance());
+        infoDto.setCurrency(character.getCurrency());
 
-        return Optional.of(appUserInfoDto);
+        return Optional.of(infoDto);
     }
 
     @Transactional
