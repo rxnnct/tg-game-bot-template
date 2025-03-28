@@ -15,15 +15,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import ru.rxnnct.gameapp.core.entity.Player;
+import ru.rxnnct.gameapp.core.entity.AppUser;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "t_player_rating", schema = "game_app")
-@ToString(exclude = "player")
-@EqualsAndHashCode(exclude = "player")
+@ToString(exclude = "app_user")
+@EqualsAndHashCode(exclude = "app_user")
 public class PlayerRating {
 
     @Id
@@ -31,8 +31,8 @@ public class PlayerRating {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "player_id", nullable = false, unique = true)
-    private Player player;
+    @JoinColumn(name = "app_user_id", nullable = false, unique = true)
+    private AppUser appUser;
 
     @Column(name = "mmr")
     private Long mmr;

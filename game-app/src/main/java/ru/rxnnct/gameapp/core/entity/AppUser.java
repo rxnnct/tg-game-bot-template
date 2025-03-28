@@ -24,10 +24,10 @@ import ru.rxnnct.gameapp.game.entity.PlayerRating;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "t_player", schema = "game_app")
+@Table(name = "t_app_user", schema = "game_app")
 @ToString(exclude = {"characters", "playerRating"})
 @EqualsAndHashCode(exclude = {"characters", "playerRating"})
-public class Player {
+public class AppUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,9 +48,9 @@ public class Player {
     @Column(name = "created_at", columnDefinition = "timestamp")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "appUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<GameCharacter> characters;
 
-    @OneToOne(mappedBy = "player", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "appUser", cascade = CascadeType.ALL)
     private PlayerRating playerRating;
 }

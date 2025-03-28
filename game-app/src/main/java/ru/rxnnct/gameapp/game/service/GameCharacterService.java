@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.rxnnct.gameapp.core.entity.Player;
+import ru.rxnnct.gameapp.core.entity.AppUser;
 import ru.rxnnct.gameapp.game.entity.GameCharacter;
 import ru.rxnnct.gameapp.core.exceptions.NoCharactersException;
 import ru.rxnnct.gameapp.game.repository.GameCharacterRepository;
@@ -16,13 +16,13 @@ public class GameCharacterService {
     private final GameCharacterRepository gameCharacterRepository;
 
     @Transactional
-    public GameCharacter createCharacter(Player player) {
+    public GameCharacter createCharacter(AppUser appUser) {
         GameCharacter newCharacter = new GameCharacter();
         newCharacter.setMaxHealth(100L);
         newCharacter.setStrength(20L);
         newCharacter.setCurrency(0L);
         newCharacter.setCreatedAt(LocalDateTime.now());
-        newCharacter.setPlayer(player);
+        newCharacter.setAppUser(appUser);
 
         gameCharacterRepository.save(newCharacter);
         return newCharacter;

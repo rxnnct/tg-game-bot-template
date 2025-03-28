@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.rxnnct.gameapp.core.entity.Player;
-import ru.rxnnct.gameapp.core.exceptions.PlayerNotFoundException;
-import ru.rxnnct.gameapp.core.service.PlayerService;
+import ru.rxnnct.gameapp.core.entity.AppUser;
+import ru.rxnnct.gameapp.core.exceptions.AppUserNotFoundException;
+import ru.rxnnct.gameapp.core.service.AppUserService;
 import ru.rxnnct.gameapp.core.exceptions.NoCharactersException;
 
 @Service
@@ -16,7 +16,7 @@ import ru.rxnnct.gameapp.core.exceptions.NoCharactersException;
 public class PveService {
 
     private final GameCharacterService gameCharacterService;
-    private final PlayerService playerService;
+    private final AppUserService appUserService;
     private final StringRedisTemplate redisTemplate;
 
     private static final String DELAYED_TASKS_KEY = "delayed_tasks";
@@ -25,17 +25,17 @@ public class PveService {
 
     @Transactional
     public Long examplePveActivity(Long tgId) {
-        Player player = playerService.findPlayerByTgId(tgId)
-            .orElseThrow(() -> new PlayerNotFoundException(
-                "Player not found with tgId: %d".formatted(tgId)));
+        AppUser appUser = appUserService.findAppUserByTgId(tgId)
+            .orElseThrow(() -> new AppUserNotFoundException(
+                "User not found with tgId: %d".formatted(tgId)));
 
-        if (player.getCharacters().isEmpty()) {
-            throw new NoCharactersException("Player has no characters, tgId: %d".formatted(tgId));
+        if (appUser.getCharacters().isEmpty()) {
+            throw new NoCharactersException("User has no characters, tgId: %d".formatted(tgId));
         }
 
-        Long playerId = player.getCharacters().getFirst().getId();
+        Long appUserId = appUser.getCharacters().getFirst().getId();
         long income = (long) ((Math.random() * (12 - 8)) + 8);
-        gameCharacterService.addCurrency(playerId, income);
+        gameCharacterService.addCurrency(appUserId, income);
 
         return income;
     }

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.rxnnct.gameapp.core.entity.Player;
+import ru.rxnnct.gameapp.core.entity.AppUser;
 
 @Data
 @NoArgsConstructor
@@ -38,6 +38,6 @@ public class GameCharacter {
     private LocalDateTime createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "player_id", nullable = false)
-    private Player player;
+    @JoinColumn(name = "app_user_id", nullable = false)
+    private AppUser appUser;
 }

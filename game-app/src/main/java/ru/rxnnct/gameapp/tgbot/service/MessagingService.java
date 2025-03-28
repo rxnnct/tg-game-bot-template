@@ -9,8 +9,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.rxnnct.gameapp.core.entity.Player;
-import ru.rxnnct.gameapp.core.service.PlayerService;
+import ru.rxnnct.gameapp.core.entity.AppUser;
+import ru.rxnnct.gameapp.core.service.AppUserService;
 import ru.rxnnct.gameapp.game.service.PveService;
 
 @Service
@@ -18,7 +18,7 @@ import ru.rxnnct.gameapp.game.service.PveService;
 @RequiredArgsConstructor
 public class MessagingService {
 
-    private final PlayerService playerService;
+    private final AppUserService appUserService;
     private final KeyboardService keyboardService;
     private final MenuService menuService;
     private final PveService pveService;
@@ -34,8 +34,8 @@ public class MessagingService {
         var text = update.getMessage().getText();
         var tgId = update.getMessage().getChatId();
 
-        Optional<Player> playerOpt = playerService.findPlayerByTgId(tgId);
-        boolean isRegistered = playerOpt.map(Player::getIsRegistered).orElse(false);
+        Optional<AppUser> appUserOpt = appUserService.findAppUserByTgId(tgId);
+        boolean isRegistered = appUserOpt.map(AppUser::getIsRegistered).orElse(false);
 
         if (menuService.isRegistrationInProgress(tgId)) {
             return handleNicknameInput(text, tgId, locale);
@@ -58,8 +58,8 @@ public class MessagingService {
 
         if (isCommand(text, "bot.menu.help", locale) || "/help".equals(text)) {
             return handleHelp(tgId, locale);
-        } else if (isCommand(text, "bot.menu.player_info", locale)) {
-            return handlePlayerInfo(tgId, locale);
+        } else if (isCommand(text, "bot.menu.app_user_info", locale)) {
+            return handleAppUserInfo(tgId, locale);
         } else if (isCommand(text, "bot.menu.pve", locale)) {
             if (!pveService.isExamplePveActivityInProgress(tgId)) {
                 return handlePve(tgId, locale);
@@ -72,13 +72,13 @@ public class MessagingService {
     }
 
     private SendMessage handleStart(Long tgId, Locale locale) {
-        Optional<Player> playerOpt = playerService.findPlayerByTgId(tgId);
-        boolean isRegistered = playerOpt.map(Player::getIsRegistered).orElse(false);
+        Optional<AppUser> appUserOpt = appUserService.findAppUserByTgId(tgId);
+        boolean isRegistered = appUserOpt.map(AppUser::getIsRegistered).orElse(false);
 
         String responseMessage;
         if (isRegistered) {
             responseMessage = messageSource.getMessage("bot.greeting_name",
-                new Object[]{playerOpt.get().getName()}, locale);
+                new Object[]{appUserOpt.get().getName()}, locale);
         } else {
             responseMessage = messageSource.getMessage("bot.greeting", null, locale);
         }
@@ -89,7 +89,7 @@ public class MessagingService {
     }
 
     private SendMessage handleRegistrationStart(Long tgId, Locale locale) {
-        String responseMessage = messageSource.getMessage("bot.player.enter_name", null, locale);
+        String responseMessage = messageSource.getMessage("bot.app_user.enter_name", null, locale);
         SendMessage sendMessage = buildSendMessage(tgId, responseMessage);
         sendMessage.setReplyMarkup(null);
         return sendMessage;
@@ -99,17 +99,17 @@ public class MessagingService {
         String responseMessage;
 
         if (text.length() < 3 || text.contains(" ") || !text.matches("[a-zA-Z0-9]*")) {
-            responseMessage = messageSource.getMessage("bot.player.invalid_name", null, locale);
+            responseMessage = messageSource.getMessage("bot.app_user.invalid_name", null, locale);
         } else {
             try {
-                playerService.createOrUpdatePlayer(text, tgId, true);
-                responseMessage = messageSource.getMessage("bot.player.name_set",
+                appUserService.createOrUpdateAppUser(text, tgId, true);
+                responseMessage = messageSource.getMessage("bot.app_user.name_set",
                     new Object[]{text}, locale);
                 menuService.setRegistrationInProgress(tgId, false);
             } catch (DataIntegrityViolationException e) {
                 log.error("Data integrity violation when setting name '{}': {}", text,
                     e.getMessage());
-                responseMessage = messageSource.getMessage("bot.player.name_exists",
+                responseMessage = messageSource.getMessage("bot.app_user.name_exists",
                     new Object[]{text}, locale);
             }
         }
@@ -124,12 +124,12 @@ public class MessagingService {
         return buildSendMessage(tgId, responseMessage);
     }
 
-    private SendMessage handlePlayerInfo(Long tgId, Locale locale) {
-        var playerInfo = playerService.getPlayerInfo(tgId);
-        String responseMessage = playerInfo
-            .map(p -> messageSource.getMessage("bot.player.player_info",
+    private SendMessage handleAppUserInfo(Long tgId, Locale locale) {
+        var appUserInfo = appUserService.getAppUserInfo(tgId);
+        String responseMessage = appUserInfo
+            .map(p -> messageSource.getMessage("bot.app_user.app_user_info",
                 new Object[]{p.getName(), p.getBalance(), p.getCurrency()}, locale))
-            .orElseGet(() -> messageSource.getMessage("bot.player.player_not_found", null, locale));
+            .orElseGet(() -> messageSource.getMessage("bot.app_user.app_user_not_found", null, locale));
         return buildSendMessage(tgId, responseMessage);
     }
 

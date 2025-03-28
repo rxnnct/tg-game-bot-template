@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.rxnnct.gameapp.core.exceptions.NoCharactersException;
-import ru.rxnnct.gameapp.core.exceptions.PlayerNotFoundException;
+import ru.rxnnct.gameapp.core.exceptions.AppUserNotFoundException;
 import ru.rxnnct.gameapp.game.service.PveService;
 
 @Service
@@ -29,9 +29,9 @@ public class AutoMessagingService {
                 locale
             );
             telegramBot.execute(buildSendMessage(tgId, responseMessage));
-        } catch (PlayerNotFoundException e) {
+        } catch (AppUserNotFoundException e) {
             String errorMessage = messageSource.getMessage(
-                "bot.error.player_not_found",
+                "bot.error.app_user_not_found",
                 null,
                 locale
             );
