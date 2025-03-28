@@ -15,7 +15,9 @@ import ru.rxnnct.gameapp.core.exceptions.NoCharactersException;
 import ru.rxnnct.gameapp.core.exceptions.PlayerNotFoundException;
 import ru.rxnnct.gameapp.core.repository.PlayerRepository;
 import ru.rxnnct.gameapp.game.entity.GameCharacter;
+import ru.rxnnct.gameapp.game.entity.PlayerRating;
 import ru.rxnnct.gameapp.game.service.GameCharacterService;
+import ru.rxnnct.gameapp.game.service.PlayerRatingService;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ public class PlayerService {
 
     private final PlayerRepository playerRepository;
     private final GameCharacterService gameCharacterService;
+    private final PlayerRatingService playerRatingService;
 
     @Transactional
     public void createOrUpdatePlayer(String name, Long tgId, boolean isRegistered) {
@@ -34,9 +37,11 @@ public class PlayerService {
                 isRegistered,
                 0L,
                 LocalDateTime.now(),
+                null,
                 null);
             playerRepository.save(newPlayer);
             createCharacter(newPlayer.getId());
+            createPlayerRating(newPlayer.getId());
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException(
                 "This name is already taken. Please choose another one.");
@@ -83,6 +88,19 @@ public class PlayerService {
             characters.add(newCharacter);
 
             player.setCharacters(characters);
+
+            playerRepository.save(player);
+        }, () -> {
+            throw new NoSuchElementException("Player with ID " + id + " not found");
+        });
+    }
+
+    @Transactional
+    public void createPlayerRating(long id) {
+        this.playerRepository.findById(id).ifPresentOrElse(player -> {
+            PlayerRating newPlayerRating = playerRatingService.createPlayerRating(player);
+
+            player.setPlayerRating(newPlayerRating);
 
             playerRepository.save(player);
         }, () -> {

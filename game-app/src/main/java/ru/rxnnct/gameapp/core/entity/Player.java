@@ -8,21 +8,25 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.TemporalType;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.repository.Temporal;
+import lombok.ToString;
 import ru.rxnnct.gameapp.game.entity.GameCharacter;
+import ru.rxnnct.gameapp.game.entity.PlayerRating;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "t_player", schema = "game_app")
+@ToString(exclude = {"characters", "playerRating"})
+@EqualsAndHashCode(exclude = {"characters", "playerRating"})
 public class Player {
 
     @Id
@@ -46,4 +50,7 @@ public class Player {
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<GameCharacter> characters;
+
+    @OneToOne(mappedBy = "player", cascade = CascadeType.ALL)
+    private PlayerRating playerRating;
 }
