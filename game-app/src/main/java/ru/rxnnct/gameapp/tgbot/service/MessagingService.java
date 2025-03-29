@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.rxnnct.gameapp.core.entity.AppUser;
 import ru.rxnnct.gameapp.core.service.AppUserService;
 import ru.rxnnct.gameapp.game.service.PveService;
+import ru.rxnnct.gameapp.game.service.PvpService;
 
 @Service
 @Slf4j
@@ -22,6 +23,7 @@ public class MessagingService {
     private final KeyboardService keyboardService;
     private final MenuService menuService;
     private final PveService pveService;
+    private final PvpService pvpService;
 
     private final MessageSource messageSource;
 
@@ -66,6 +68,8 @@ public class MessagingService {
             } else {
                 return null;
             }
+        } else if (isCommand(text, "bot.menu.pvp", locale)) {
+            return handlePvP(tgId, locale);
         } else {
             return handleUnknownCommand(tgId, locale);
         }
@@ -129,7 +133,8 @@ public class MessagingService {
         String responseMessage = info
             .map(p -> messageSource.getMessage("bot.app_user.info",
                 new Object[]{p.getName(), p.getBalance(), p.getCurrency()}, locale))
-            .orElseGet(() -> messageSource.getMessage("bot.app_user.app_user_not_found", null, locale));
+            .orElseGet(
+                () -> messageSource.getMessage("bot.app_user.app_user_not_found", null, locale));
         return buildSendMessage(tgId, responseMessage);
     }
 
@@ -137,6 +142,13 @@ public class MessagingService {
         pveService.scheduleExamplePveActivity(tgId, locale);
         pveService.setExamplePveActivityInProgress(tgId, true);
         String responseMessage = messageSource.getMessage("bot.character.pve_start", null, locale);
+        return buildSendMessage(tgId, responseMessage);
+    }
+
+    private SendMessage handlePvP(Long tgId, Locale locale) {
+        String pvpResult = pvpService.examplePvpActivity(tgId);
+        String responseMessage = messageSource.getMessage("bot.character.pvp_result",
+            new Object[]{pvpResult}, locale);
         return buildSendMessage(tgId, responseMessage);
     }
 
