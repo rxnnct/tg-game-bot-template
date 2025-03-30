@@ -24,7 +24,7 @@ public class AutoMessagingService {
         try {
             Long income = pveService.examplePveActivity(tgId);
             String responseMessage = messageSource.getMessage(
-                "bot.character.pve_result",
+                "bot.pve.example_1_result",
                 new Object[]{income},
                 locale
             );

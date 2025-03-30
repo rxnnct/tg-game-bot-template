@@ -11,7 +11,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.rxnnct.gameapp.core.entity.AppUser;
 import ru.rxnnct.gameapp.core.service.AppUserService;
-import ru.rxnnct.gameapp.game.service.PveService;
 import ru.rxnnct.gameapp.game.service.PvpService;
 
 @Service
@@ -22,7 +21,6 @@ public class MessagingService {
     private final AppUserService appUserService;
     private final KeyboardService keyboardService;
     private final MenuService menuService;
-    private final PveService pveService;
     private final PvpService pvpService;
 
     private final MessageSource messageSource;
@@ -63,11 +61,7 @@ public class MessagingService {
         } else if (isCommand(text, "bot.menu.info", locale)) {
             return handleInfo(tgId, locale);
         } else if (isCommand(text, "bot.menu.pve", locale)) {
-            if (!pveService.isExamplePveActivityInProgress(tgId)) {
-                return handlePve(tgId, locale);
-            } else {
-                return null;
-            }
+            return handlePveMenu(tgId, locale);
         } else if (isCommand(text, "bot.menu.pvp", locale)) {
             return handlePvP(tgId, locale);
         } else {
@@ -87,16 +81,16 @@ public class MessagingService {
             responseMessage = messageSource.getMessage("bot.greeting", null, locale);
         }
 
-        SendMessage sendMessage = buildSendMessage(tgId, responseMessage);
-        sendMessage.setReplyMarkup(keyboardService.createMenu(tgId, locale));
-        return sendMessage;
+        SendMessage message = buildSendMessage(tgId, responseMessage);
+        message.setReplyMarkup(keyboardService.createMenu(tgId, locale));
+        return message;
     }
 
     private SendMessage handleRegistrationStart(Long tgId, Locale locale) {
         String responseMessage = messageSource.getMessage("bot.app_user.enter_name", null, locale);
-        SendMessage sendMessage = buildSendMessage(tgId, responseMessage);
-        sendMessage.setReplyMarkup(null);
-        return sendMessage;
+        SendMessage message = buildSendMessage(tgId, responseMessage);
+        message.setReplyMarkup(null);
+        return message;
     }
 
     private SendMessage handleNicknameInput(String text, Long tgId, Locale locale) {
@@ -118,9 +112,9 @@ public class MessagingService {
             }
         }
 
-        SendMessage sendMessage = buildSendMessage(tgId, responseMessage);
-        sendMessage.setReplyMarkup(keyboardService.createMenu(tgId, locale));
-        return sendMessage;
+        SendMessage message = buildSendMessage(tgId, responseMessage);
+        message.setReplyMarkup(keyboardService.createMenu(tgId, locale));
+        return message;
     }
 
     private SendMessage handleHelp(Long tgId, Locale locale) {
@@ -138,16 +132,17 @@ public class MessagingService {
         return buildSendMessage(tgId, responseMessage);
     }
 
-    private SendMessage handlePve(Long tgId, Locale locale) {
-        pveService.scheduleExamplePveActivity(tgId, locale);
-        pveService.setExamplePveActivityInProgress(tgId, true);
-        String responseMessage = messageSource.getMessage("bot.character.pve_start", null, locale);
-        return buildSendMessage(tgId, responseMessage);
+    private SendMessage handlePveMenu(Long tgId, Locale locale) {
+        var message = new SendMessage();
+        message.setChatId(tgId.toString());
+        message.setText(messageSource.getMessage("bot.pve.menu.title", null, locale));
+        message.setReplyMarkup(keyboardService.createPveInlineMenu(locale));
+        return message;
     }
 
     private SendMessage handlePvP(Long tgId, Locale locale) {
         String pvpResult = pvpService.examplePvpActivity(tgId);
-        String responseMessage = messageSource.getMessage("bot.character.pvp_result",
+        String responseMessage = messageSource.getMessage("bot.pvp.result",
             new Object[]{pvpResult}, locale);
         return buildSendMessage(tgId, responseMessage);
     }

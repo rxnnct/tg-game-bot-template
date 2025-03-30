@@ -6,7 +6,9 @@ import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.rxnnct.gameapp.core.service.AppUserService;
 
@@ -45,5 +47,28 @@ public class KeyboardService {
 
         keyboardMarkup.setKeyboard(keyboard);
         return keyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup createPveInlineMenu(Locale locale) {
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(InlineKeyboardButton.builder()
+            .text(messageSource.getMessage("bot.pve.button.example_1_start", null, locale))
+            .callbackData("pve_example_1_start")
+            .build());
+
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
+        row2.add(InlineKeyboardButton.builder()
+            .text(messageSource.getMessage("bot.pve.button.example_2_start", null, locale))
+            .callbackData("pve_example_2_start")
+            .build());
+
+        rowsInline.add(row1);
+        rowsInline.add(row2);
+        markupInline.setKeyboard(rowsInline);
+
+        return markupInline;
     }
 }

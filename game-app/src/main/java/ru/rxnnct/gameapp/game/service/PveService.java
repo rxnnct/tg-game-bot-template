@@ -21,7 +21,7 @@ public class PveService {
 
     private static final String DELAYED_TASKS_KEY = "delayed_tasks";
     private static final String EXAMPLE_PVE_ACTIVITY_IS_IN_PROGRESS_KEY = "example_pve_activity_is_in_progress";
-    private static final int EXAMPLE_PVE_ACTIVITY_DURATION = 5;
+    private static final int EXAMPLE_PVE_ACTIVITY_DURATION = 20;
 
     @Transactional
     public Long examplePveActivity(Long tgId) {

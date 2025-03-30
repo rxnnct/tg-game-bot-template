@@ -24,11 +24,15 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private final TelegramBotProperties properties;
     private final MessagingService messagingService;
+    private final CallbackQueryHandler callbackQueryHandler;
 
-    public TelegramBot(TelegramBotProperties properties, MessagingService messagingService) {
+    public TelegramBot(TelegramBotProperties properties,
+        MessagingService messagingService,
+        CallbackQueryHandler callbackQueryHandler) {
         super(properties.token());
         this.properties = properties;
         this.messagingService = messagingService;
+        this.callbackQueryHandler = callbackQueryHandler;
 
         List<BotCommand> commands = new ArrayList<>();
         commands.add(new BotCommand("/help", "[description]"));
@@ -56,7 +60,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     execute(sendMessage);
                 }
             } else if (update.hasCallbackQuery()) {
-                log.info("CallbackQuery received: {}", update.getCallbackQuery().getData());
+                callbackQueryHandler.handleCallbackQuery(update, this);
             } else if (update.hasMyChatMember()) {
                 handleMyChatMemberUpdate(update.getMyChatMember());
             } else {
