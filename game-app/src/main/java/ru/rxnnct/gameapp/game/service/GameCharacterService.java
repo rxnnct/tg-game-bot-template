@@ -1,6 +1,7 @@
 package ru.rxnnct.gameapp.game.service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,7 @@ public class GameCharacterService {
     }
 
     @Transactional
-    public void addCurrency(Long gameCharacterId, long currency) {
+    public void addCurrency(UUID gameCharacterId, long currency) {
         GameCharacter gameCharacter = gameCharacterRepository.findById(gameCharacterId)
             .orElseThrow(() -> new NoCharactersException(
                 "GameCharacter not found with id: " + gameCharacterId));
@@ -38,5 +39,4 @@ public class GameCharacterService {
         gameCharacter.setCurrency(newCurrency);
 
     }
-
 }

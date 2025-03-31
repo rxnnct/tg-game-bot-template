@@ -2,6 +2,7 @@ package ru.rxnnct.gameapp.game.service;
 
 import java.time.Duration;
 import java.util.Locale;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class PveService {
             throw new NoCharactersException("User has no characters, tgId: %d".formatted(tgId));
         }
 
-        Long appUserId = appUser.getCharacters().getFirst().getId();
+        UUID appUserId = appUser.getCharacters().getFirst().getId();
         long income = (long) ((Math.random() * (12 - 8)) + 8);
         gameCharacterService.addCurrency(appUserId, income);
 

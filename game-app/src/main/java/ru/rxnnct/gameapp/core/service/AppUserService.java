@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -76,7 +77,7 @@ public class AppUserService {
     }
 
     @Transactional
-    public void createCharacter(long id) {
+    public void createCharacter(UUID id) {
         this.appUserRepository.findById(id).ifPresentOrElse(appUser -> {
             GameCharacter newCharacter = gameCharacterService.createCharacter(appUser);
 
@@ -96,7 +97,7 @@ public class AppUserService {
     }
 
     @Transactional
-    public void createPlayerRating(long id) {
+    public void createPlayerRating(UUID id) {
         this.appUserRepository.findById(id).ifPresentOrElse(appUser -> {
             PlayerRating newPlayerRating = playerRatingService.createPlayerRating(appUser);
 
