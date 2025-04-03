@@ -25,9 +25,26 @@ CREATE TABLE game_app.t_player_rating
     id           uuid primary key,
     app_user_id  uuid references game_app.t_app_user (id) on delete cascade,
     mmr          int8,
-    games_played int8,
-    wins         int8,
-    losses       int8,
-    last_updated timestamptz,
+    games_played int8, --deliberately denormalized
+    wins         int8, --deliberately denormalized
+    losses       int8, --deliberately denormalized
+    updated_at   timestamptz,
     unique (app_user_id)
+);
+
+create table game_app.t_match
+(
+    id            uuid primary key,
+    app_user_id_1 uuid references game_app.t_app_user (id) on delete cascade,
+    app_user_id_2 uuid references game_app.t_app_user (id) on delete cascade,
+    winner        uuid references game_app.t_app_user (id) on delete cascade,
+    created_at    timestamptz
+);
+
+CREATE TABLE game_app.t_last_match_battle_log
+(
+    app_user_id uuid primary key references game_app.t_app_user (id) on delete cascade,
+    match_id    uuid references game_app.t_match (id) on delete cascade,
+    battle_log  text,
+    updated_at  timestamptz
 );

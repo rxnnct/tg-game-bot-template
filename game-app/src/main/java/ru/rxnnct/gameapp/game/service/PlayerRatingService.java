@@ -1,6 +1,5 @@
 package ru.rxnnct.gameapp.game.service;
 
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +21,6 @@ public class PlayerRatingService {
         newPlayerRating.setGamesPlayed(0L);
         newPlayerRating.setWins(0L);
         newPlayerRating.setLosses(0L);
-        newPlayerRating.setLastUpdated(LocalDateTime.now());
 
         playerRatingRepository.save(newPlayerRating);
         return newPlayerRating;
