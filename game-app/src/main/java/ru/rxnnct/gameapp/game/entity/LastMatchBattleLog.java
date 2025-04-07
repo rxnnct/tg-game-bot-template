@@ -4,15 +4,15 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UpdateTimestamp;
-import ru.rxnnct.gameapp.core.entity.AppUser;
 
 @Data
 @NoArgsConstructor
@@ -22,12 +22,12 @@ import ru.rxnnct.gameapp.core.entity.AppUser;
 public class LastMatchBattleLog {
 
     @Id
-    @OneToOne
-    @JoinColumn(name = "app_user_id", referencedColumnName = "id")
-    private AppUser appUser;
+    @Column(name = "match_id")
+    private UUID matchId;
 
-    @ManyToOne
-    @JoinColumn(name = "match_id", referencedColumnName = "id")
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "match_id")
     private Match match;
 
     @Column(name = "battle_log", columnDefinition = "text")

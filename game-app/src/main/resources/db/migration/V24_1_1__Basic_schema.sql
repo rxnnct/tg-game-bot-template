@@ -43,8 +43,7 @@ create table game_app.t_match
 
 CREATE TABLE game_app.t_last_match_battle_log
 (
-    app_user_id uuid primary key references game_app.t_app_user (id) on delete cascade,
-    match_id    uuid references game_app.t_match (id) on delete cascade,
-    battle_log  text,
-    updated_at  timestamptz
+    match_id   uuid primary key references game_app.t_match (id) on delete cascade,
+    battle_log text,
+    updated_at timestamptz
 );
