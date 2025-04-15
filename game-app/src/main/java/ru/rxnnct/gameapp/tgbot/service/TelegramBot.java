@@ -60,6 +60,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private void initializeCommands() {
         List<BotCommand> commands = new ArrayList<>();
+//        commands.add(new BotCommand("/start",
+//            messageSource.getMessage("bot.menu.start", null, Locale.getDefault())));
         commands.add(new BotCommand("/help",
             messageSource.getMessage("bot.menu.help", null, Locale.getDefault())));
 
@@ -98,18 +100,13 @@ public class TelegramBot extends TelegramLongPollingBot {
         Long chatId = message.getChatId();
         Locale locale = getLocaleFromUser(message.getFrom());
 
-        if ("/start".equals(text)) {
-            handleStartCommand(chatId, locale);
-            return;
-        }
-
         SendMessage response = processMessage(text, chatId, locale);
         if (response != null) {
             execute(response);
         }
     }
 
-    private void handleStartCommand(Long chatId, Locale locale) throws TelegramApiException {
+    private void handleStartCommand(Long chatId, Locale locale) {
         Optional<AppUser> appUserOpt = appUserService.findAppUserByTgId(chatId);
 
         String caption = appUserOpt
@@ -127,10 +124,19 @@ public class TelegramBot extends TelegramLongPollingBot {
             .replyMarkup(keyboardService.createMenu(chatId, locale))
             .build();
 
-        execute(sendPhoto);
+        try {
+            execute(sendPhoto);
+        } catch (TelegramApiException e) {
+            log.error("Failed to send start photo: {}", e.getMessage());
+        }
     }
 
     private SendMessage processMessage(String text, Long tgId, Locale locale) {
+        if ("/start".equals(text)) {
+            handleStartCommand(tgId, locale);
+            return null;
+        }
+
         Optional<AppUser> appUserOpt = appUserService.findAppUserByTgId(tgId);
         boolean isRegistered = appUserOpt.map(AppUser::getIsRegistered).orElse(false);
 
