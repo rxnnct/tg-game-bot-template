@@ -98,8 +98,8 @@ public class TelegramBot extends TelegramLongPollingBot {
         Long chatId = message.getChatId();
         Locale locale = getLocaleFromUser(message.getFrom());
 
-        if (text.equals("/sendphoto")) {
-            handlePhotoCommand(chatId);
+        if ("/start".equals(text)) {
+            handleStartCommand(chatId, locale);
             return;
         }
 
@@ -109,16 +109,25 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void handlePhotoCommand(Long chatId) {
-        try {
-            execute(SendPhoto.builder()
-                .chatId(chatId.toString())
-                .photo(new InputFile(properties.startCommandCachedImageId()))
-                .caption("test text")
-                .build());
-        } catch (TelegramApiException e) {
-            log.error("Error sending photo: {}", e.getMessage());
-        }
+    private void handleStartCommand(Long chatId, Locale locale) throws TelegramApiException {
+        Optional<AppUser> appUserOpt = appUserService.findAppUserByTgId(chatId);
+
+        String caption = appUserOpt
+            .filter(AppUser::getIsRegistered)
+            .map(user -> messageSource.getMessage(
+                "bot.greeting_name",
+                new Object[]{user.getName()},
+                locale))
+            .orElseGet(() -> messageSource.getMessage("bot.greeting", null, locale));
+
+        SendPhoto sendPhoto = SendPhoto.builder()
+            .chatId(chatId.toString())
+            .photo(new InputFile(properties.startCommandCachedImageId()))
+            .caption(caption)
+            .replyMarkup(keyboardService.createMenu(chatId, locale))
+            .build();
+
+        execute(sendPhoto);
     }
 
     private SendMessage processMessage(String text, Long tgId, Locale locale) {
@@ -129,29 +138,11 @@ public class TelegramBot extends TelegramLongPollingBot {
             return handleNicknameInput(text, tgId, locale);
         }
 
-        if ("/start".equals(text)) {
-            return handleStart(tgId, appUserOpt, locale);
-        }
-
         if (!isRegistered) {
             return handleUnregisteredUser(text, tgId, locale);
         }
 
         return handleRegisteredUser(text, tgId, locale);
-    }
-
-    private SendMessage handleStart(Long tgId, Optional<AppUser> appUserOpt, Locale locale) {
-        String responseMessage = appUserOpt
-            .filter(AppUser::getIsRegistered)
-            .map(user -> messageSource.getMessage(
-                "bot.greeting_name",
-                new Object[]{user.getName()},
-                locale))
-            .orElseGet(() -> messageSource.getMessage("bot.greeting", null, locale));
-
-        SendMessage message = new SendMessage(tgId.toString(), responseMessage);
-        message.setReplyMarkup(keyboardService.createMenu(tgId, locale));
-        return message;
     }
 
     private SendMessage handleUnregisteredUser(String text, Long tgId, Locale locale) {
