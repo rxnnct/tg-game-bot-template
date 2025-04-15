@@ -22,6 +22,7 @@ import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import ru.rxnnct.gameapp.core.entity.AppUser;
 import ru.rxnnct.gameapp.core.service.AppUserService;
 import ru.rxnnct.gameapp.game.service.PvpService;
@@ -105,27 +106,70 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void handleStartCommand(Long chatId, Locale locale) {
-        Optional<AppUser> appUserOpt = appUserService.findAppUserByTgId(chatId);
+        try {
+            String greetingText = getGreetingText(chatId, locale);
 
-        String caption = appUserOpt
+            if (trySendStartPhoto(chatId, locale, greetingText)) {
+                return;
+            }
+
+            sendTextGreeting(chatId, locale, greetingText);
+        } catch (Exception e) {
+            log.error("Unexpected error in handleStartCommand", e);
+        }
+    }
+
+    private String getGreetingText(Long chatId, Locale locale) {
+        return appUserService.findAppUserByTgId(chatId)
             .filter(AppUser::getIsRegistered)
             .map(user -> messageSource.getMessage(
                 "bot.greeting_name",
                 new Object[]{user.getName()},
                 locale))
             .orElseGet(() -> messageSource.getMessage("bot.greeting", null, locale));
+    }
 
-        SendPhoto sendPhoto = SendPhoto.builder()
-            .chatId(chatId.toString())
-            .photo(new InputFile(properties.startCommandCachedImageId()))
-            .caption(caption)
-            .replyMarkup(keyboardService.createMenu(chatId, locale))
-            .build();
+    private boolean trySendStartPhoto(Long chatId, Locale locale, String caption) {
+        String fileId = properties.startCommandCachedImageId();
+
+        if (fileId == null || fileId.isBlank()) {
+            log.warn("No file_id configured for start image");
+            return false;
+        }
 
         try {
+            SendPhoto sendPhoto = SendPhoto.builder()
+                .chatId(chatId.toString())
+                .photo(new InputFile(fileId))
+                .caption(caption)
+                .replyMarkup(keyboardService.createMenu(chatId, locale))
+                .build();
+
             execute(sendPhoto);
+            return true;
+        } catch (TelegramApiRequestException e) {
+            if (e.getApiResponse() != null && e.getApiResponse()
+                .contains("wrong remote file identifier")) {
+                log.error("Invalid file_id for start image: {}", fileId);
+            } else {
+                log.error("Failed to send start photo", e);
+            }
+            return false;
         } catch (TelegramApiException e) {
-            log.error("Failed to send start photo: {}", e.getMessage());
+            log.error("General error sending start photo", e);
+            return false;
+        }
+    }
+
+    private void sendTextGreeting(Long chatId, Locale locale, String text) {
+        try {
+            execute(SendMessage.builder()
+                .chatId(chatId.toString())
+                .text(text)
+                .replyMarkup(keyboardService.createMenu(chatId, locale))
+                .build());
+        } catch (TelegramApiException e) {
+            log.error("Failed to send text greeting", e);
         }
     }
 
