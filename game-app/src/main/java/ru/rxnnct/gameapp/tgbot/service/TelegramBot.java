@@ -21,6 +21,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import ru.rxnnct.gameapp.core.entity.AppUser;
@@ -108,12 +109,12 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void handleStartCommand(Long chatId, Locale locale) {
         try {
             String greetingText = getGreetingText(chatId, locale);
+            ReplyKeyboard menuKeyboard = keyboardService.createMenu(chatId, locale);
 
-            if (trySendStartPhoto(chatId, locale, greetingText)) {
-                return;
+            if (!trySendImage(chatId, properties.startCommandCachedImageId(),
+                greetingText, menuKeyboard)) {
+                sendTextMessage(chatId, greetingText, menuKeyboard);
             }
-
-            sendTextGreeting(chatId, locale, greetingText);
         } catch (Exception e) {
             log.error("Unexpected error in handleStartCommand", e);
         }
@@ -129,11 +130,10 @@ public class TelegramBot extends TelegramLongPollingBot {
             .orElseGet(() -> messageSource.getMessage("bot.greeting", null, locale));
     }
 
-    private boolean trySendStartPhoto(Long chatId, Locale locale, String caption) {
-        String fileId = properties.startCommandCachedImageId();
-
+    private boolean trySendImage(Long chatId, String fileId, String caption,
+        ReplyKeyboard replyMarkup) {
         if (fileId == null || fileId.isBlank()) {
-            log.warn("No file_id configured for start image");
+            log.warn("No file_id provided for image");
             return false;
         }
 
@@ -142,7 +142,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 .chatId(chatId.toString())
                 .photo(new InputFile(fileId))
                 .caption(caption)
-                .replyMarkup(keyboardService.createMenu(chatId, locale))
+                .replyMarkup(replyMarkup)
                 .build();
 
             execute(sendPhoto);
@@ -150,26 +150,27 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (TelegramApiRequestException e) {
             if (e.getApiResponse() != null && e.getApiResponse()
                 .contains("wrong remote file identifier")) {
-                log.error("Invalid file_id for start image: {}", fileId);
+                log.error("Invalid file_id for image: {}", fileId);
             } else {
-                log.error("Failed to send start photo", e);
+                log.error("Failed to send image", e);
             }
             return false;
         } catch (TelegramApiException e) {
-            log.error("General error sending start photo", e);
+            log.error("General error sending image", e);
             return false;
         }
     }
 
-    private void sendTextGreeting(Long chatId, Locale locale, String text) {
+    private void sendTextMessage(Long chatId, String text,
+        ReplyKeyboard replyMarkup) {
         try {
             execute(SendMessage.builder()
                 .chatId(chatId.toString())
                 .text(text)
-                .replyMarkup(keyboardService.createMenu(chatId, locale))
+                .replyMarkup(replyMarkup)
                 .build());
         } catch (TelegramApiException e) {
-            log.error("Failed to send text greeting", e);
+            log.error("Failed to send text message", e);
         }
     }
 
