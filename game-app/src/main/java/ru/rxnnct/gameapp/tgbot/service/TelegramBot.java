@@ -214,8 +214,11 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private SendMessage createMessage(Long chatId, String messageKey, Object[] args,
         Locale locale) {
-        return new SendMessage(chatId.toString(),
-            messageSource.getMessage(messageKey, args, locale));
+        Locale effectiveLocale = locale != null ? locale : Locale.ENGLISH;
+        return new SendMessage(
+            chatId.toString(),
+            messageSource.getMessage(messageKey, args, effectiveLocale)
+        );
     }
 
     private boolean isValidNickname(String text) {
