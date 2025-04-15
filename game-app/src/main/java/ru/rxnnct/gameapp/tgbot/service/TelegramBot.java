@@ -8,8 +8,10 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
@@ -53,6 +55,14 @@ public class TelegramBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         try {
             if (update.hasMessage() && update.getMessage().hasText()) {
+                //tmp ->
+                String messageText = update.getMessage().getText();
+                if (messageText.equals("/sendphoto")) {
+                    String cachedPhotoFileId = properties.startCommandCachedImageId();
+                    long chatId = update.getMessage().getChatId();
+                    sendPhotoFromCache(chatId, cachedPhotoFileId, "test text");
+                }
+                //<- tmp
                 String languageCode = update.getMessage().getFrom().getLanguageCode();
                 Locale locale = Locale.forLanguageTag(languageCode != null ? languageCode : "en");
                 SendMessage sendMessage = messagingService.receiveMessage(update, locale);
@@ -70,6 +80,20 @@ public class TelegramBot extends TelegramLongPollingBot {
             log.error("Error processing update: {}", update, e);
         }
     }
+
+    //tmp ->
+    private void sendPhotoFromCache(Long chatId, String fileId, String caption) {
+        try {
+            execute(SendPhoto.builder()
+                .chatId(chatId.toString())
+                .photo(new InputFile(fileId))
+                .caption(caption)
+                .build());
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+    //<- tmp
 
     private void handleMyChatMemberUpdate(ChatMemberUpdated chatMemberUpdated) {
         Chat chat = chatMemberUpdated.getChat();

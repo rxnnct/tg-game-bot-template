@@ -1,6 +1,7 @@
 bot:
   name: ${GAME_APP_BOT_NAME}
   token: ${GAME_APP_BOT_TOKEN}
+  start_command_cached_image_id: ${GAME_APP_BOT_START_COMMAND_CACHED_IMAGE_ID}
 spring:
   datasource:
     url: ${GAME_APP_DB_URL}
