@@ -94,42 +94,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void handleMessage(Update update) throws TelegramApiException {
-        Message message = update.getMessage();
-        String text = message.getText();
-        Long chatId = message.getChatId();
-        Locale locale = getLocaleFromUser(message.getFrom());
-
-        SendMessage response = processMessage(text, chatId, locale);
-        if (response != null) {
-            execute(response);
-        }
-    }
-
-    private void handleStartCommand(Long chatId, Locale locale) {
-        try {
-            String greetingText = getGreetingText(chatId, locale);
-            ReplyKeyboard menuKeyboard = keyboardService.createMenu(chatId, locale);
-
-            if (!trySendImage(chatId, properties.startCommandCachedImageId(),
-                greetingText, menuKeyboard)) {
-                sendTextMessage(chatId, greetingText, menuKeyboard);
-            }
-        } catch (Exception e) {
-            log.error("Unexpected error in handleStartCommand", e);
-        }
-    }
-
-    private String getGreetingText(Long chatId, Locale locale) {
-        return appUserService.findAppUserByTgId(chatId)
-            .filter(AppUser::getIsRegistered)
-            .map(user -> messageSource.getMessage(
-                "bot.greeting_name",
-                new Object[]{user.getName()},
-                locale))
-            .orElseGet(() -> messageSource.getMessage("bot.greeting", null, locale));
-    }
-
     private boolean trySendImage(Long chatId, String fileId, String caption,
         ReplyKeyboard replyMarkup) {
         if (fileId == null || fileId.isBlank()) {
@@ -194,6 +158,49 @@ public class TelegramBot extends TelegramLongPollingBot {
         return handleRegisteredUser(text, tgId, locale);
     }
 
+    private SendMessage createPveMenu(Long tgId, Locale locale) {
+        SendMessage message = new SendMessage(tgId.toString(),
+            messageSource.getMessage("bot.pve.menu.title", null, locale));
+        message.setReplyMarkup(keyboardService.createPveInlineMenu(locale));
+        return message;
+    }
+
+    private void handleMessage(Update update) throws TelegramApiException {
+        Message message = update.getMessage();
+        String text = message.getText();
+        Long chatId = message.getChatId();
+        Locale locale = getLocaleFromUser(message.getFrom());
+
+        SendMessage response = processMessage(text, chatId, locale);
+        if (response != null) {
+            execute(response);
+        }
+    }
+
+    private void handleStartCommand(Long chatId, Locale locale) {
+        try {
+            String greetingText = getGreetingText(chatId, locale);
+            ReplyKeyboard menuKeyboard = keyboardService.createMenu(chatId, locale);
+
+            if (!trySendImage(chatId, properties.startCommandCachedImageId(),
+                greetingText, menuKeyboard)) {
+                sendTextMessage(chatId, greetingText, menuKeyboard);
+            }
+        } catch (Exception e) {
+            log.error("Unexpected error in handleStartCommand", e);
+        }
+    }
+
+    private String getGreetingText(Long chatId, Locale locale) {
+        return appUserService.findAppUserByTgId(chatId)
+            .filter(AppUser::getIsRegistered)
+            .map(user -> messageSource.getMessage(
+                "bot.greeting_name",
+                new Object[]{user.getName()},
+                locale))
+            .orElseGet(() -> messageSource.getMessage("bot.greeting", null, locale));
+    }
+
     private SendMessage handleUnregisteredUser(String text, Long tgId, Locale locale) {
         if (isCommand(text, "bot.menu.set_name", locale)) {
             menuService.setRegistrationInProgress(tgId, true);
@@ -245,16 +252,26 @@ public class TelegramBot extends TelegramLongPollingBot {
             .orElse(createMessage(tgId, "bot.app_user.app_user_not_found", null, locale));
     }
 
-    private SendMessage createPveMenu(Long tgId, Locale locale) {
-        SendMessage message = new SendMessage(tgId.toString(),
-            messageSource.getMessage("bot.pve.menu.title", null, locale));
-        message.setReplyMarkup(keyboardService.createPveInlineMenu(locale));
-        return message;
-    }
-
     private SendMessage handlePvp(Long tgId, Locale locale) {
         String result = pvpService.examplePvpActivity(tgId);
         return createMessage(tgId, "bot.pvp.result", new Object[]{result}, locale);
+    }
+
+    private void handleMyChatMemberUpdate(ChatMemberUpdated chatMemberUpdated) {
+        Chat chat = chatMemberUpdated.getChat();
+        User user = chatMemberUpdated.getFrom();
+        ChatMember oldChatMember = chatMemberUpdated.getOldChatMember();
+        ChatMember newChatMember = chatMemberUpdated.getNewChatMember();
+
+        log.info("Chat member status changed for chat {} (user: {}): {} -> {}",
+            chat.getId(), user.getUserName(),
+            oldChatMember.getStatus(), newChatMember.getStatus());
+
+        if (newChatMember.getStatus().equals("kicked")) {
+            log.info("Bot was removed from chat {}", chat.getId());
+        } else if (newChatMember.getStatus().equals("member")) {
+            log.info("Bot was added to chat {}", chat.getId());
+        }
     }
 
     private SendMessage createMessage(Long chatId, String messageKey, Object[] args,
@@ -277,23 +294,6 @@ public class TelegramBot extends TelegramLongPollingBot {
     private Locale getLocaleFromUser(User user) {
         return Locale.forLanguageTag(
             Optional.ofNullable(user.getLanguageCode()).orElse("en"));
-    }
-
-    private void handleMyChatMemberUpdate(ChatMemberUpdated chatMemberUpdated) {
-        Chat chat = chatMemberUpdated.getChat();
-        User user = chatMemberUpdated.getFrom();
-        ChatMember oldChatMember = chatMemberUpdated.getOldChatMember();
-        ChatMember newChatMember = chatMemberUpdated.getNewChatMember();
-
-        log.info("Chat member status changed for chat {} (user: {}): {} -> {}",
-            chat.getId(), user.getUserName(),
-            oldChatMember.getStatus(), newChatMember.getStatus());
-
-        if (newChatMember.getStatus().equals("kicked")) {
-            log.info("Bot was removed from chat {}", chat.getId());
-        } else if (newChatMember.getStatus().equals("member")) {
-            log.info("Bot was added to chat {}", chat.getId());
-        }
     }
 
 }
