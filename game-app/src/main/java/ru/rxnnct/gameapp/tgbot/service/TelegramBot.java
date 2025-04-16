@@ -19,6 +19,7 @@ import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.rxnnct.gameapp.tgbot.config.properties.TelegramBotProperties;
+import ru.rxnnct.gameapp.tgbot.service.response.BotResponse;
 
 @Slf4j
 @Component

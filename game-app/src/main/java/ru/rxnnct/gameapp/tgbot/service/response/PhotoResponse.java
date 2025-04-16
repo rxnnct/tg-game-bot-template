@@ -1,4 +1,4 @@
-package ru.rxnnct.gameapp.tgbot.service;
+package ru.rxnnct.gameapp.tgbot.service.response;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
+import ru.rxnnct.gameapp.tgbot.service.TelegramBot;
 
 @RequiredArgsConstructor
 @Slf4j

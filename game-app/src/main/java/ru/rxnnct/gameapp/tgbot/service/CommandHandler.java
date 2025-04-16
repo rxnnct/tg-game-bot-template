@@ -12,6 +12,9 @@ import ru.rxnnct.gameapp.core.entity.AppUser;
 import ru.rxnnct.gameapp.core.service.AppUserService;
 import ru.rxnnct.gameapp.game.service.PvpService;
 import ru.rxnnct.gameapp.tgbot.config.properties.TelegramBotProperties;
+import ru.rxnnct.gameapp.tgbot.service.response.BotResponse;
+import ru.rxnnct.gameapp.tgbot.service.response.PhotoResponse;
+import ru.rxnnct.gameapp.tgbot.service.response.TextResponse;
 
 @Slf4j
 @Component

@@ -1,9 +1,10 @@
-package ru.rxnnct.gameapp.tgbot.service;
+package ru.rxnnct.gameapp.tgbot.service.response;
 
 import lombok.RequiredArgsConstructor;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.rxnnct.gameapp.tgbot.service.TelegramBot;
 
 @RequiredArgsConstructor
 public class TextResponse implements BotResponse {
