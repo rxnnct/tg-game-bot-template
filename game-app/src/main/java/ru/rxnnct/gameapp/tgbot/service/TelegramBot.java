@@ -70,23 +70,21 @@ public class TelegramBot extends TelegramLongPollingBot {
             } else if (update.hasMyChatMember()) {
                 handleMyChatMemberUpdate(update.getMyChatMember());
             } else {
-                log.warn("Unsupported update type received: {}", update);
+                log.warn("Unsupported update type: {}", update);
             }
-        } catch (TelegramApiException e) {
-            log.error("Error processing update: {}", update, e);
+        } catch (Exception e) {
+            log.error("Update processing error: {}", e.getMessage());
         }
     }
 
     private void handleMessage(Update update) throws TelegramApiException {
         Message message = update.getMessage();
-        String text = message.getText();
-        Long chatId = message.getChatId();
-        Locale locale = getLocaleFromUser(message.getFrom());
-
-        BotResponse response = commandHandler.processMessage(text, chatId, locale);
-        if (response != null) {
-            response.send(this, chatId);
-        }
+        BotResponse response = commandHandler.processMessage(
+            message.getText(),
+            message.getChatId(),
+            getLocaleFromUser(message.getFrom())
+        );
+        response.send(this, message.getChatId());
     }
 
     private void handleMyChatMemberUpdate(ChatMemberUpdated chatMemberUpdated) {

@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import ru.rxnnct.gameapp.core.entity.AppUser;
 import ru.rxnnct.gameapp.core.service.AppUserService;
 import ru.rxnnct.gameapp.game.service.PvpService;
@@ -29,33 +28,34 @@ public class CommandHandler {
     private final TelegramBotProperties botProperties;
 
     public BotResponse processMessage(String text, Long tgId, Locale locale) {
-        if ("/start".equals(text)) {
-            return handleStartCommand(tgId, locale);
-        }
+        return switch (text) {
+            case "/start" -> handleStartCommand(tgId, locale);
+            case "/help" -> createHelpResponse(locale);
+            default -> handleUserState(text, tgId, locale);
+        };
+    }
 
-        Optional<AppUser> appUserOpt = appUserService.findAppUserByTgId(tgId);
-        boolean isRegistered = appUserOpt.map(AppUser::getIsRegistered).orElse(false);
-
+    private BotResponse handleUserState(String text, Long tgId, Locale locale) {
         if (menuService.isRegistrationInProgress(tgId)) {
             return handleNicknameInput(text, tgId, locale);
         }
-
-        if (!isRegistered) {
-            return handleUnregisteredUser(text, tgId, locale);
-        }
-
-        return handleRegisteredUser(text, tgId, locale);
+        return appUserService.findAppUserByTgId(tgId)
+            .filter(AppUser::getIsRegistered)
+            .map(user -> handleRegisteredUser(text, tgId, locale))
+            .orElseGet(() -> handleUnregisteredUser(text, tgId, locale));
     }
 
-    private BotResponse handleStartCommand(Long tgId, Locale locale) {
-        String greetingText = getGreetingText(tgId, locale);
-        ReplyKeyboard menuKeyboard = keyboardService.createMenu(tgId, locale);
-        String fileId = botProperties.startCommandCachedImageId();
+    private BotResponse handleStartCommand(Long chatId, Locale locale) {
+        return Optional.ofNullable(botProperties.startCommandCachedImageId())
+            .filter(id -> !id.isBlank())
+            .<BotResponse>map(id -> new PhotoResponse(id, getGreetingText(chatId, locale),
+                keyboardService.createMenu(chatId, locale)))
+            .orElseGet(() -> new TextResponse(getGreetingText(chatId, locale),
+                keyboardService.createMenu(chatId, locale)));
+    }
 
-        if (fileId != null && !fileId.isBlank()) {
-            return new PhotoResponse(fileId, greetingText, menuKeyboard);
-        }
-        return new TextResponse(greetingText, menuKeyboard);
+    private BotResponse createHelpResponse(Locale locale) {
+        return new TextResponse(messageSource.getMessage("bot.help", null, locale), null);
     }
 
     private BotResponse handleUnregisteredUser(String text, Long tgId, Locale locale) {
@@ -66,21 +66,21 @@ public class CommandHandler {
                 null
             );
         }
-        return handleCommonCommands(text, tgId, locale);
+        return handleCommonCommands(text, locale);
     }
 
     private BotResponse handleRegisteredUser(String text, Long tgId, Locale locale) {
         if (isCommand(text, "bot.menu.info", locale)) {
             return handleInfo(tgId, locale);
         } else if (isCommand(text, "bot.menu.pve", locale)) {
-            return createPveMenu(tgId, locale);
+            return createPveMenu(locale);
         } else if (isCommand(text, "bot.menu.pvp", locale)) {
             return handlePvp(tgId, locale);
         }
-        return handleCommonCommands(text, tgId, locale);
+        return handleCommonCommands(text, locale);
     }
 
-    private BotResponse createPveMenu(Long tgId, Locale locale) {
+    private BotResponse createPveMenu(Locale locale) {
         String message = messageSource.getMessage("bot.pve.menu.title", null, locale);
         return new TextResponse(message, keyboardService.createPveInlineMenu(locale));
     }
@@ -106,7 +106,7 @@ public class CommandHandler {
         );
     }
 
-    private BotResponse handleCommonCommands(String text, Long tgId, Locale locale) {
+    private BotResponse handleCommonCommands(String text, Locale locale) {
         if (isCommand(text, "bot.menu.help", locale) || "/help".equals(text)) {
             return new TextResponse(
                 messageSource.getMessage("bot.help", null, locale),
