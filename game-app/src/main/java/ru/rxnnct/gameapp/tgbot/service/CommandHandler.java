@@ -7,11 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import ru.rxnnct.gameapp.core.entity.AppUser;
 import ru.rxnnct.gameapp.core.service.AppUserService;
 import ru.rxnnct.gameapp.game.service.PvpService;
+import ru.rxnnct.gameapp.tgbot.config.properties.TelegramBotProperties;
 
 @Slf4j
 @Component
@@ -23,8 +23,9 @@ public class CommandHandler {
     private final PvpService pvpService;
     private final MessageSource messageSource;
     private final KeyboardService keyboardService;
+    private final TelegramBotProperties botProperties;
 
-    public SendMessage processMessage(String text, Long tgId, Locale locale) {
+    public BotResponse processMessage(String text, Long tgId, Locale locale) {
         if ("/start".equals(text)) {
             return handleStartCommand(tgId, locale);
         }
@@ -43,22 +44,29 @@ public class CommandHandler {
         return handleRegisteredUser(text, tgId, locale);
     }
 
-    private SendMessage handleStartCommand(Long chatId, Locale locale) {
-        String greetingText = getGreetingText(chatId, locale);
-        ReplyKeyboard menuKeyboard = keyboardService.createMenu(chatId, locale);
+    private BotResponse handleStartCommand(Long tgId, Locale locale) {
+        String greetingText = getGreetingText(tgId, locale);
+        ReplyKeyboard menuKeyboard = keyboardService.createMenu(tgId, locale);
+        String fileId = botProperties.startCommandCachedImageId();
 
-        return createMessage(chatId, greetingText, menuKeyboard);
+        if (fileId != null && !fileId.isBlank()) {
+            return new PhotoResponse(fileId, greetingText, menuKeyboard);
+        }
+        return new TextResponse(greetingText, menuKeyboard);
     }
 
-    private SendMessage handleUnregisteredUser(String text, Long tgId, Locale locale) {
+    private BotResponse handleUnregisteredUser(String text, Long tgId, Locale locale) {
         if (isCommand(text, "bot.menu.set_name", locale)) {
             menuService.setRegistrationInProgress(tgId, true);
-            return createMessage(tgId, "bot.app_user.enter_name", null, locale);
+            return new TextResponse(
+                messageSource.getMessage("bot.app_user.enter_name", null, locale),
+                null
+            );
         }
         return handleCommonCommands(text, tgId, locale);
     }
 
-    private SendMessage handleRegisteredUser(String text, Long tgId, Locale locale) {
+    private BotResponse handleRegisteredUser(String text, Long tgId, Locale locale) {
         if (isCommand(text, "bot.menu.info", locale)) {
             return handleInfo(tgId, locale);
         } else if (isCommand(text, "bot.menu.pve", locale)) {
@@ -69,63 +77,67 @@ public class CommandHandler {
         return handleCommonCommands(text, tgId, locale);
     }
 
-    private SendMessage createPveMenu(Long tgId, Locale locale) {
-        SendMessage message = new SendMessage(tgId.toString(),
-            messageSource.getMessage("bot.pve.menu.title", null, locale));
-        message.setReplyMarkup(keyboardService.createPveInlineMenu(locale));
-        return message;
+    private BotResponse createPveMenu(Long tgId, Locale locale) {
+        String message = messageSource.getMessage("bot.pve.menu.title", null, locale);
+        return new TextResponse(message, keyboardService.createPveInlineMenu(locale));
     }
 
-    private SendMessage handleInfo(Long tgId, Locale locale) {
+    private BotResponse handleInfo(Long tgId, Locale locale) {
         return appUserService.getInfo(tgId)
-            .map(user -> createMessage(tgId, "bot.app_user.info",
-                new Object[]{user.getName(), user.getBalance(), user.getCurrency()}, locale))
-            .orElse(createMessage(tgId, "bot.app_user.app_user_not_found", null, locale));
+            .map(user -> new TextResponse(
+                messageSource.getMessage("bot.app_user.info",
+                    new Object[]{user.getName(), user.getBalance(), user.getCurrency()}, locale),
+                null
+            ))
+            .orElse(new TextResponse(
+                messageSource.getMessage("bot.app_user.app_user_not_found", null, locale),
+                null
+            ));
     }
 
-    private SendMessage handlePvp(Long tgId, Locale locale) {
+    private BotResponse handlePvp(Long tgId, Locale locale) {
         String result = pvpService.examplePvpActivity(tgId);
-        return createMessage(tgId, "bot.pvp.result", new Object[]{result}, locale);
+        return new TextResponse(
+            messageSource.getMessage("bot.pvp.result", new Object[]{result}, locale),
+            null
+        );
     }
 
-    private SendMessage handleCommonCommands(String text, Long tgId, Locale locale) {
+    private BotResponse handleCommonCommands(String text, Long tgId, Locale locale) {
         if (isCommand(text, "bot.menu.help", locale) || "/help".equals(text)) {
-            return createMessage(tgId, "bot.help", null, locale);
+            return new TextResponse(
+                messageSource.getMessage("bot.help", null, locale),
+                null
+            );
         }
-        return createMessage(tgId, "bot.unknown_command", null, locale);
+        return new TextResponse(
+            messageSource.getMessage("bot.unknown_command", null, locale),
+            null
+        );
     }
 
-    private SendMessage handleNicknameInput(String text, Long tgId, Locale locale) {
+    private BotResponse handleNicknameInput(String text, Long tgId, Locale locale) {
         if (!isValidNickname(text)) {
-            return createMessage(tgId, "bot.app_user.invalid_name", null, locale);
+            return new TextResponse(
+                messageSource.getMessage("bot.app_user.invalid_name", null, locale),
+                null
+            );
         }
 
         try {
             appUserService.createOrUpdateAppUser(text, tgId, true);
             menuService.setRegistrationInProgress(tgId, false);
-            SendMessage message = createMessage(tgId, "bot.app_user.name_set", new Object[]{text},
-                locale);
-            message.setReplyMarkup(keyboardService.createMenu(tgId, locale));
-            return message;
+            return new TextResponse(
+                messageSource.getMessage("bot.app_user.name_set", new Object[]{text}, locale),
+                keyboardService.createMenu(tgId, locale)
+            );
         } catch (DataIntegrityViolationException e) {
             log.error("Name conflict: {}", text);
-            return createMessage(tgId, "bot.app_user.name_exists", new Object[]{text}, locale);
+            return new TextResponse(
+                messageSource.getMessage("bot.app_user.name_exists", new Object[]{text}, locale),
+                null
+            );
         }
-    }
-
-    private SendMessage createMessage(Long chatId, String messageText, ReplyKeyboard replyMarkup) {
-        SendMessage message = new SendMessage(chatId.toString(), messageText);
-        if (replyMarkup != null) {
-            message.setReplyMarkup(replyMarkup);
-        }
-        return message;
-    }
-
-    private SendMessage createMessage(Long chatId, String messageKey, Object[] args,
-        Locale locale) {
-        return createMessage(chatId,
-            messageSource.getMessage(messageKey, args, locale),
-            null);
     }
 
     private boolean isValidNickname(String text) {
@@ -136,8 +148,8 @@ public class CommandHandler {
         return messageSource.getMessage(commandKey, null, locale).equals(text);
     }
 
-    public String getGreetingText(Long chatId, Locale locale) {
-        return appUserService.findAppUserByTgId(chatId)
+    public String getGreetingText(Long tgId, Locale locale) {
+        return appUserService.findAppUserByTgId(tgId)
             .filter(AppUser::getIsRegistered)
             .map(user -> messageSource.getMessage(
                 "bot.greeting_name",

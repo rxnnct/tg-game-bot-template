@@ -9,20 +9,15 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import ru.rxnnct.gameapp.tgbot.config.properties.TelegramBotProperties;
 
 @Slf4j
@@ -32,19 +27,16 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final TelegramBotProperties properties;
     private final CommandHandler commandHandler;
     private final CallbackQueryHandler callbackQueryHandler;
-    private final KeyboardService keyboardService;
     private final MessageSource messageSource;
 
     public TelegramBot(TelegramBotProperties properties,
         CommandHandler commandHandler,
         CallbackQueryHandler callbackQueryHandler,
-        KeyboardService keyboardService,
         MessageSource messageSource) {
         super(properties.token());
         this.properties = properties;
         this.commandHandler = commandHandler;
         this.callbackQueryHandler = callbackQueryHandler;
-        this.keyboardService = keyboardService;
         this.messageSource = messageSource;
 
         initializeCommands();
@@ -90,72 +82,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         Long chatId = message.getChatId();
         Locale locale = getLocaleFromUser(message.getFrom());
 
-        if ("/start".equals(text)) {
-            handleStartCommand(chatId, locale);
-            return;
-        }
-
-        SendMessage response = commandHandler.processMessage(text, chatId, locale);
+        BotResponse response = commandHandler.processMessage(text, chatId, locale);
         if (response != null) {
-            execute(response);
-        }
-    }
-
-    private void handleStartCommand(Long chatId, Locale locale) {
-        try {
-            String greetingText = commandHandler.getGreetingText(chatId, locale);
-            ReplyKeyboard menuKeyboard = keyboardService.createMenu(chatId, locale);
-
-            if (!trySendImage(chatId, properties.startCommandCachedImageId(),
-                greetingText, menuKeyboard)) {
-                sendTextMessage(chatId, greetingText, menuKeyboard);
-            }
-        } catch (Exception e) {
-            log.error("Unexpected error in handleStartCommand", e);
-        }
-    }
-
-    private boolean trySendImage(Long chatId, String fileId, String caption,
-        ReplyKeyboard replyMarkup) {
-        if (fileId == null || fileId.isBlank()) {
-            log.warn("No file_id provided for image");
-            return false;
-        }
-
-        try {
-            SendPhoto sendPhoto = SendPhoto.builder()
-                .chatId(chatId.toString())
-                .photo(new InputFile(fileId))
-                .caption(caption)
-                .replyMarkup(replyMarkup)
-                .build();
-
-            execute(sendPhoto);
-            return true;
-        } catch (TelegramApiRequestException e) {
-            if (e.getApiResponse() != null && e.getApiResponse()
-                .contains("wrong remote file identifier")) {
-                log.error("Invalid file_id for image: {}", fileId);
-            } else {
-                log.error("Failed to send image", e);
-            }
-            return false;
-        } catch (TelegramApiException e) {
-            log.error("General error sending image", e);
-            return false;
-        }
-    }
-
-    private void sendTextMessage(Long chatId, String text,
-        ReplyKeyboard replyMarkup) {
-        try {
-            execute(SendMessage.builder()
-                .chatId(chatId.toString())
-                .text(text)
-                .replyMarkup(replyMarkup)
-                .build());
-        } catch (TelegramApiException e) {
-            log.error("Failed to send text message", e);
+            response.send(this, chatId);
         }
     }
 
