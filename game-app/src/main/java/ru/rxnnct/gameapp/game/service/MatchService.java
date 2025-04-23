@@ -8,6 +8,7 @@ import ru.rxnnct.gameapp.game.repository.MatchRepository;
 @Service
 @RequiredArgsConstructor
 public class MatchService {
+
     private final MatchRepository matchRepository;
     private final LastMatchBattleLogRepository lastMatchBattleLogRepository;
 
