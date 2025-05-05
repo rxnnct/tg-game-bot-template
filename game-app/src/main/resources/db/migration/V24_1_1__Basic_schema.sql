@@ -16,8 +16,8 @@ create table game_app.t_game_character
     max_health       int8,
     strength         int8,
     currency         int8,
-    created_at       timestamptz,
     --is_pvp_available boolean,
+    created_at       timestamptz,
     app_user_id      uuid references game_app.t_app_user (id) on delete cascade
 );
 
@@ -49,5 +49,5 @@ CREATE TABLE game_app.t_last_match_battle_log
     updated_at timestamptz
 );
 
-/*CREATE INDEX idx_pvp_available ON game_app.t_game_character (is_pvp_available)
-    WHERE is_pvp_available = TRUE;*/
+CREATE INDEX idx_pvp_available ON game_app.t_game_character (is_pvp_available)
+    WHERE is_pvp_available = TRUE;

@@ -35,6 +35,9 @@ public class GameCharacter {
     @Column(name = "currency")
     private Long currency;
 
+//    @Column(name = "is_pvp_available")
+//    private Boolean isPvpAvailable;
+
     @Column(name = "created_at", columnDefinition = "timestamp")
     private LocalDateTime createdAt;
 

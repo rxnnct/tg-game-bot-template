@@ -22,6 +22,7 @@ public class GameCharacterService {
         newCharacter.setMaxHealth(100L);
         newCharacter.setStrength(20L);
         newCharacter.setCurrency(0L);
+        //newCharacter.setIsPvpAvailable(false);
         newCharacter.setCreatedAt(LocalDateTime.now());
         newCharacter.setAppUser(appUser);
 
