@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PvpService {
 
     @Transactional
-    public String examplePvpActivity(Long tgId) {
+    public String exampleFight(Long tgId) {
         return "WIN!!!";
     }
 

@@ -32,10 +32,10 @@ public class KeyboardService {
             KeyboardRow row2 = new KeyboardRow();
             switch (state) {
                 case PVP_MENU:
-                    row1.add(messageSource.getMessage("bot.pvp_menu.1", null, locale));
-                    row1.add(messageSource.getMessage("bot.pvp_menu.2", null, locale));
+                    row1.add(messageSource.getMessage("bot.pvp_menu.fight", null, locale));
+                    row1.add(messageSource.getMessage("bot.pvp_menu.switch_pvp_ready", null, locale));
 
-                    row2.add(messageSource.getMessage("bot.menu.back", null, locale));
+                    row2.add(messageSource.getMessage("bot.menu.to_main_menu", null, locale));
 
                     keyboard.add(row1);
                     keyboard.add(row2);

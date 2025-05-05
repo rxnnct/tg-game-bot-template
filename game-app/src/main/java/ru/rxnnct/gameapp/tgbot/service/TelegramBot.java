@@ -45,6 +45,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private void initializeCommands() {
         List<BotCommand> commands = new ArrayList<>();
+        commands.add(new BotCommand("/start",
+            messageSource.getMessage("bot.menu.start", null, Locale.getDefault())));
         commands.add(new BotCommand("/help",
             messageSource.getMessage("bot.menu.help", null, Locale.getDefault())));
 

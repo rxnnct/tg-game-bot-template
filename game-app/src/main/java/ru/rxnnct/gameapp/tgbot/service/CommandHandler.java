@@ -77,6 +77,10 @@ public class CommandHandler {
             return createPveMenu(locale);
         } else if (isCommand(text, "bot.menu.pvp", locale)) {
             return handlePvp(tgId, locale);
+        } else if (isCommand(text, "bot.pvp_menu.fight", locale)) {
+            return handleFight(tgId, locale);
+        } else if (isCommand(text, "bot.menu.to_main_menu", locale)) {
+            return handleToMainMenuTransition(tgId, locale);
         }
         return handleCommonCommands(text, locale);
     }
@@ -100,10 +104,24 @@ public class CommandHandler {
     }
 
     private BotResponse handlePvp(Long tgId, Locale locale) {
-        String result = pvpService.examplePvpActivity(tgId);
+        return new TextResponse(
+            messageSource.getMessage("bot.menu.pvp", null, locale),
+            keyboardService.createMainMenu(tgId, locale, MenuState.PVP_MENU)
+        );
+    }
+
+    private BotResponse handleFight(Long tgId, Locale locale) {
+        String result = pvpService.exampleFight(tgId);
         return new TextResponse(
             messageSource.getMessage("bot.pvp.result", new Object[]{result}, locale),
             keyboardService.createMainMenu(tgId, locale, MenuState.PVP_MENU)
+        );
+    }
+
+    private BotResponse handleToMainMenuTransition(Long tgId, Locale locale) {
+        return new TextResponse(
+            messageSource.getMessage("bot.menu.to_main_menu", null, locale),
+            keyboardService.createMainMenu(tgId, locale, MenuState.MAIN_MENU)
         );
     }
 
