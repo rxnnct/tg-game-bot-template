@@ -19,7 +19,7 @@ public class KeyboardService {
     private final AppUserService appUserService;
     private final MessageSource messageSource;
 
-    public ReplyKeyboardMarkup createMenu(Long tgId, Locale locale) {
+    public ReplyKeyboardMarkup createMainMenu(Long tgId, Locale locale, String state) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
         keyboardMarkup.setOneTimeKeyboard(false);
@@ -28,15 +28,30 @@ public class KeyboardService {
 
         if (appUserService.isAppUserRegistered(tgId)) {
             KeyboardRow row1 = new KeyboardRow();
-            row1.add(messageSource.getMessage("bot.menu.pve", null, locale));
-            row1.add(messageSource.getMessage("bot.menu.pvp", null, locale));
-
             KeyboardRow row2 = new KeyboardRow();
-            row2.add(messageSource.getMessage("bot.menu.info", null, locale));
-            row2.add(messageSource.getMessage("bot.menu.help", null, locale));
+            switch (state) {
+                case "PVP_MENU":
+                    row1.add(messageSource.getMessage("bot.pvp_menu.1", null, locale));
+                    row1.add(messageSource.getMessage("bot.pvp_menu.2", null, locale));
 
-            keyboard.add(row1);
-            keyboard.add(row2);
+                    row2.add(messageSource.getMessage("bot.menu.back", null, locale));
+
+                    keyboard.add(row1);
+                    keyboard.add(row2);
+
+                    break;
+                default: //MAIN_MENU
+                    row1.add(messageSource.getMessage("bot.menu.pve", null, locale));
+                    row1.add(messageSource.getMessage("bot.menu.pvp", null, locale));
+
+                    row2.add(messageSource.getMessage("bot.menu.info", null, locale));
+                    row2.add(messageSource.getMessage("bot.menu.help", null, locale));
+
+                    keyboard.add(row1);
+                    keyboard.add(row2);
+
+                    break;
+            }
         } else {
             KeyboardRow row = new KeyboardRow();
             row.add(messageSource.getMessage("bot.menu.set_name", null, locale));

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.stereotype.Component;
 import ru.rxnnct.gameapp.core.entity.AppUser;
 import ru.rxnnct.gameapp.core.service.AppUserService;
@@ -26,6 +27,8 @@ public class CommandHandler {
     private final MessageSource messageSource;
     private final KeyboardService keyboardService;
     private final TelegramBotProperties botProperties;
+
+//    private final StateMachineFactory<String, String> stateMachineFactory;
 
     public BotResponse processMessage(String text, Long tgId, Locale locale) {
         return switch (text) {
@@ -49,9 +52,9 @@ public class CommandHandler {
         return Optional.ofNullable(botProperties.startCommandCachedImageId())
             .filter(id -> !id.isBlank())
             .<BotResponse>map(id -> new PhotoResponse(id, getGreetingText(chatId, locale),
-                keyboardService.createMenu(chatId, locale)))
+                keyboardService.createMainMenu(chatId, locale, "MAIN_MENU")))
             .orElseGet(() -> new TextResponse(getGreetingText(chatId, locale),
-                keyboardService.createMenu(chatId, locale)));
+                keyboardService.createMainMenu(chatId, locale, "MAIN_MENU")));
     }
 
     private BotResponse createHelpResponse(Locale locale) {
@@ -102,7 +105,7 @@ public class CommandHandler {
         String result = pvpService.examplePvpActivity(tgId);
         return new TextResponse(
             messageSource.getMessage("bot.pvp.result", new Object[]{result}, locale),
-            null
+            keyboardService.createMainMenu(tgId, locale, "PVP_MENU")
         );
     }
 
@@ -132,7 +135,7 @@ public class CommandHandler {
             menuService.setRegistrationInProgress(tgId, false);
             return new TextResponse(
                 messageSource.getMessage("bot.app_user.name_set", new Object[]{text}, locale),
-                keyboardService.createMenu(tgId, locale)
+                keyboardService.createMainMenu(tgId, locale, "MAIN_MENU")
             );
         } catch (DataIntegrityViolationException e) {
             log.error("Name conflict: {}", text);

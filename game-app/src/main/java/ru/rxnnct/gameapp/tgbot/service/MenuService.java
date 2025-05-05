@@ -11,6 +11,8 @@ public class MenuService {
 
     private final StringRedisTemplate redisTemplate;
 
+    private static final Duration MENU_STATE_TTL = Duration.ofHours(1);
+
     public void setRegistrationInProgress(Long tgId, boolean inProgress) {
         String key = "registration:" + tgId;
         if (inProgress) {
@@ -24,4 +26,19 @@ public class MenuService {
         String key = "registration:" + tgId;
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
+
+    public void setMenuState(Long tgId, String state) {
+        String key = "menu_state:" + tgId;
+        if (state != null) {
+            redisTemplate.opsForValue().set(key, state, MENU_STATE_TTL);
+        } else {
+            redisTemplate.delete(key);
+        }
+    }
+
+    public String getMenuState(Long tgId) {
+        String key = "menu_state:" + tgId;
+        return redisTemplate.opsForValue().get(key);
+    }
+
 }
