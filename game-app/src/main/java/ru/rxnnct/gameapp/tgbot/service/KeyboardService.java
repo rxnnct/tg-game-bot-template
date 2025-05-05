@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.rxnnct.gameapp.core.service.AppUserService;
+import ru.rxnnct.gameapp.tgbot.enums.MenuState;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +20,7 @@ public class KeyboardService {
     private final AppUserService appUserService;
     private final MessageSource messageSource;
 
-    public ReplyKeyboardMarkup createMainMenu(Long tgId, Locale locale, String state) {
+    public ReplyKeyboardMarkup createMainMenu(Long tgId, Locale locale, MenuState state) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
         keyboardMarkup.setOneTimeKeyboard(false);
@@ -30,7 +31,7 @@ public class KeyboardService {
             KeyboardRow row1 = new KeyboardRow();
             KeyboardRow row2 = new KeyboardRow();
             switch (state) {
-                case "PVP_MENU":
+                case PVP_MENU:
                     row1.add(messageSource.getMessage("bot.pvp_menu.1", null, locale));
                     row1.add(messageSource.getMessage("bot.pvp_menu.2", null, locale));
 

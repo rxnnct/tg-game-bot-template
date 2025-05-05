@@ -11,6 +11,7 @@ import ru.rxnnct.gameapp.core.entity.AppUser;
 import ru.rxnnct.gameapp.core.service.AppUserService;
 import ru.rxnnct.gameapp.game.service.PvpService;
 import ru.rxnnct.gameapp.tgbot.config.properties.TelegramBotProperties;
+import ru.rxnnct.gameapp.tgbot.enums.MenuState;
 import ru.rxnnct.gameapp.tgbot.service.response.BotResponse;
 import ru.rxnnct.gameapp.tgbot.service.response.PhotoResponse;
 import ru.rxnnct.gameapp.tgbot.service.response.TextResponse;
@@ -49,9 +50,9 @@ public class CommandHandler {
         return Optional.ofNullable(botProperties.startCommandCachedImageId())
             .filter(id -> !id.isBlank())
             .<BotResponse>map(id -> new PhotoResponse(id, getGreetingText(chatId, locale),
-                keyboardService.createMainMenu(chatId, locale, "MAIN_MENU")))
+                keyboardService.createMainMenu(chatId, locale, MenuState.MAIN_MENU)))
             .orElseGet(() -> new TextResponse(getGreetingText(chatId, locale),
-                keyboardService.createMainMenu(chatId, locale, "MAIN_MENU")));
+                keyboardService.createMainMenu(chatId, locale, MenuState.MAIN_MENU)));
     }
 
     private BotResponse createHelpResponse(Locale locale) {
@@ -102,7 +103,7 @@ public class CommandHandler {
         String result = pvpService.examplePvpActivity(tgId);
         return new TextResponse(
             messageSource.getMessage("bot.pvp.result", new Object[]{result}, locale),
-            keyboardService.createMainMenu(tgId, locale, "PVP_MENU")
+            keyboardService.createMainMenu(tgId, locale, MenuState.PVP_MENU)
         );
     }
 
@@ -132,7 +133,7 @@ public class CommandHandler {
             menuService.setRegistrationInProgress(tgId, false);
             return new TextResponse(
                 messageSource.getMessage("bot.app_user.name_set", new Object[]{text}, locale),
-                keyboardService.createMainMenu(tgId, locale, "MAIN_MENU")
+                keyboardService.createMainMenu(tgId, locale, MenuState.MAIN_MENU)
             );
         } catch (DataIntegrityViolationException e) {
             log.error("Name conflict: {}", text);
