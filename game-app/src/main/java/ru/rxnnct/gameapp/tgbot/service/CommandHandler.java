@@ -105,7 +105,7 @@ public class CommandHandler {
 
     private BotResponse handlePvp(Long tgId, Locale locale) {
         return new TextResponse(
-            messageSource.getMessage("bot.menu.pvp", null, locale),
+            messageSource.getMessage("bot.pvp.info", null, locale),
             keyboardService.createMainMenu(tgId, locale, MenuState.PVP_MENU)
         );
     }
