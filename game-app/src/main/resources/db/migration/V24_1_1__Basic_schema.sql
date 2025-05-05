@@ -49,5 +49,5 @@ CREATE TABLE game_app.t_last_match_battle_log
     updated_at timestamptz
 );
 
-CREATE INDEX idx_pvp_available ON game_app.t_game_character (is_pvp_available)
-    WHERE is_pvp_available = TRUE;
+-- CREATE INDEX idx_pvp_available ON game_app.t_game_character (is_pvp_available)
+--     WHERE is_pvp_available = TRUE;
