@@ -9,6 +9,6 @@ public interface AppUserRepository extends CrudRepository<AppUser, UUID> {
 
     Optional<AppUser> findByTgId(Long tgId);
 
-    boolean existsByTgIdAndIsRegisteredTrue(Long tgId);
+    boolean existsByTgId(Long tgId);
 
 }

@@ -16,6 +16,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import ru.rxnnct.gameapp.game.entity.GameCharacter;
 import ru.rxnnct.gameapp.game.entity.PlayerRating;
@@ -40,13 +41,11 @@ public class AppUser {
     @Column(name = "name", unique = true, nullable = false, length = 25)
     private String name;
 
-    @Column(name = "is_registered")
-    private Boolean isRegistered;
+    @Column(name = "balance", columnDefinition = "bigint default 0")
+    private Long balance = 0L;
 
-    @Column(name = "balance")
-    private Long balance;
-
-    @Column(name = "created_at", columnDefinition = "timestamp")
+    @CreationTimestamp
+    @Column(name = "created_at", columnDefinition = "timestamp with time zone default now()")
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "appUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

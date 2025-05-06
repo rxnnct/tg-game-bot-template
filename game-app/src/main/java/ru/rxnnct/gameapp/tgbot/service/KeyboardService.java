@@ -27,7 +27,7 @@ public class KeyboardService {
 
         List<KeyboardRow> keyboard = new ArrayList<>();
 
-        if (appUserService.isAppUserRegistered(tgId)) {
+        if (appUserService.isAppUserExists(tgId)) {
             KeyboardRow row1 = new KeyboardRow();
             KeyboardRow row2 = new KeyboardRow();
             switch (state) {

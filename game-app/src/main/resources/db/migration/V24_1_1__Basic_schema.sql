@@ -2,12 +2,11 @@ create schema if not exists game_app;
 
 create table game_app.t_app_user
 (
-    id            uuid primary key,
-    tg_id         bigint unique,
-    name          varchar(25) not null unique,
-    is_registered boolean,
-    balance       bigint,
-    created_at    timestamp with time zone default now()
+    id         uuid primary key,
+    tg_id      bigint unique,
+    name       varchar(25) not null unique,
+    balance    bigint                   default 0,
+    created_at timestamp with time zone default now()
 );
 
 create table game_app.t_game_character

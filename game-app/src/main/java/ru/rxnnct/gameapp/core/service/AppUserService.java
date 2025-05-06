@@ -1,6 +1,5 @@
 package ru.rxnnct.gameapp.core.service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -29,18 +28,14 @@ public class AppUserService {
     private final PlayerRatingService playerRatingService;
 
     @Transactional
-    public void createOrUpdateAppUser(String name, Long tgId, boolean isRegistered) {
+    public void createOrUpdateAppUser(String name, Long tgId) {
         try {
-            AppUser newAppUser = new AppUser(
-                null,
-                tgId,
-                name,
-                isRegistered,
-                0L,
-                LocalDateTime.now(),
-                null,
-                null);
+            AppUser newAppUser = new AppUser();
+            newAppUser.setName(name);
+            newAppUser.setTgId(tgId);
+
             appUserRepository.save(newAppUser);
+
             createCharacter(newAppUser.getId());
             createPlayerRating(newAppUser.getId());
         } catch (DataIntegrityViolationException e) {
@@ -53,8 +48,8 @@ public class AppUserService {
         return this.appUserRepository.findByTgId(tgId);
     }
 
-    public boolean isAppUserRegistered(long tgId) {
-        return appUserRepository.existsByTgIdAndIsRegisteredTrue(tgId);
+    public boolean isAppUserExists(long tgId) {
+        return appUserRepository.existsByTgId(tgId);
     }
 
     @Transactional

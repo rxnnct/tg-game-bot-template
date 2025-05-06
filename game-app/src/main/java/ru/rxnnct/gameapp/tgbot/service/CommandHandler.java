@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
-import ru.rxnnct.gameapp.core.entity.AppUser;
 import ru.rxnnct.gameapp.core.service.AppUserService;
 import ru.rxnnct.gameapp.game.service.PvpService;
 import ru.rxnnct.gameapp.tgbot.config.properties.TelegramBotProperties;
@@ -41,7 +40,6 @@ public class CommandHandler {
             return handleNicknameInput(text, tgId, locale);
         }
         return appUserService.findAppUserByTgId(tgId)
-            .filter(AppUser::getIsRegistered)
             .map(user -> handleRegisteredUser(text, tgId, locale))
             .orElseGet(() -> handleUnregisteredUser(text, tgId, locale));
     }
@@ -147,7 +145,7 @@ public class CommandHandler {
         }
 
         try {
-            appUserService.createOrUpdateAppUser(text, tgId, true);
+            appUserService.createOrUpdateAppUser(text, tgId);
             menuService.setRegistrationInProgress(tgId, false);
             return new TextResponse(
                 messageSource.getMessage("bot.app_user.name_set", new Object[]{text}, locale),
@@ -172,7 +170,6 @@ public class CommandHandler {
 
     public String getGreetingText(Long tgId, Locale locale) {
         return appUserService.findAppUserByTgId(tgId)
-            .filter(AppUser::getIsRegistered)
             .map(user -> messageSource.getMessage(
                 "bot.greeting_name",
                 new Object[]{user.getName()},
