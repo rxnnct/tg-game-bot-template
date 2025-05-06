@@ -1,6 +1,5 @@
 package ru.rxnnct.gameapp.game.service;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,13 +20,9 @@ public class GameCharacterService {
         GameCharacter newCharacter = new GameCharacter();
         newCharacter.setMaxHealth(100L);
         newCharacter.setStrength(20L);
-        newCharacter.setCurrency(0L);
-        //newCharacter.setIsPvpAvailable(false);
-        newCharacter.setCreatedAt(LocalDateTime.now());
         newCharacter.setAppUser(appUser);
 
-        gameCharacterRepository.save(newCharacter);
-        return newCharacter;
+        return gameCharacterRepository.save(newCharacter);
     }
 
     @Transactional

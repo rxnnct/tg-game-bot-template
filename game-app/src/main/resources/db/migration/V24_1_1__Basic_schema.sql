@@ -3,21 +3,21 @@ create schema if not exists game_app;
 create table game_app.t_app_user
 (
     id            uuid primary key,
-    tg_id         int8 unique,
+    tg_id         bigint unique,
     name          varchar(25) not null unique,
     is_registered boolean,
-    balance       int8,
-    created_at    timestamptz
+    balance       bigint,
+    created_at    timestamp with time zone default now()
 );
 
 create table game_app.t_game_character
 (
     id               uuid primary key,
-    max_health       int8,
-    strength         int8,
-    currency         int8,
-    --is_pvp_available boolean,
-    created_at       timestamptz,
+    max_health       bigint,
+    strength         bigint,
+    currency         bigint                   default 0,
+    is_pvp_available boolean                  default false,
+    created_at       timestamp with time zone default now(),
     app_user_id      uuid references game_app.t_app_user (id) on delete cascade
 );
 
@@ -25,10 +25,10 @@ CREATE TABLE game_app.t_player_rating
 (
     id           uuid primary key,
     app_user_id  uuid references game_app.t_app_user (id) on delete cascade,
-    mmr          int8,
-    games_played int8, --deliberately denormalized
-    wins         int8, --deliberately denormalized
-    losses       int8, --deliberately denormalized
+    mmr          bigint,
+    games_played bigint, --deliberately denormalized
+    wins         bigint, --deliberately denormalized
+    losses       bigint, --deliberately denormalized
     updated_at   timestamptz,
     unique (app_user_id)
 );
@@ -49,5 +49,5 @@ CREATE TABLE game_app.t_last_match_battle_log
     updated_at timestamptz
 );
 
--- CREATE INDEX idx_pvp_available ON game_app.t_game_character (is_pvp_available)
---     WHERE is_pvp_available = TRUE;
+CREATE INDEX idx_pvp_available ON game_app.t_game_character (is_pvp_available)
+    WHERE is_pvp_available = TRUE;

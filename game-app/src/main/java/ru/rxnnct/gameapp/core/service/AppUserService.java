@@ -60,7 +60,8 @@ public class AppUserService {
     @Transactional
     public Optional<InfoDto> getInfo(long tgId) {
         AppUser appUser = appUserRepository.findByTgId(tgId)
-            .orElseThrow(() -> new AppUserNotFoundException("User not found with tgId: " + tgId));
+            .orElseThrow(() -> new AppUserNotFoundException(
+                "User not found with tgId: %d".formatted(tgId)));
 
         if (appUser.getCharacters() == null || appUser.getCharacters().isEmpty()) {
             throw new NoCharactersException("User has no characters");
@@ -92,7 +93,7 @@ public class AppUserService {
 
             appUserRepository.save(appUser);
         }, () -> {
-            throw new NoSuchElementException("User with ID " + id + " not found");
+            throw new NoSuchElementException("User with ID %s not found".formatted(id));
         });
     }
 
@@ -105,7 +106,7 @@ public class AppUserService {
 
             appUserRepository.save(appUser);
         }, () -> {
-            throw new NoSuchElementException("User with ID " + id + " not found");
+            throw new NoSuchElementException("User with ID %s not found".formatted(id));
         });
     }
 }

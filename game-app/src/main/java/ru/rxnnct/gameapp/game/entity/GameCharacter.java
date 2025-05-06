@@ -11,6 +11,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import ru.rxnnct.gameapp.core.entity.AppUser;
 
@@ -32,13 +33,14 @@ public class GameCharacter {
     @Column(name = "strength")
     private Long strength;
 
-    @Column(name = "currency")
-    private Long currency;
+    @Column(name = "currency", columnDefinition = "bigint default 0")
+    private Long currency = 0L;
 
-//    @Column(name = "is_pvp_available")
-//    private Boolean isPvpAvailable;
+    @Column(name = "is_pvp_available", columnDefinition = "boolean default false")
+    private Boolean isPvpAvailable = false;
 
-    @Column(name = "created_at", columnDefinition = "timestamp")
+    @CreationTimestamp
+    @Column(name = "created_at", columnDefinition = "timestamp with time zone default now()")
     private LocalDateTime createdAt;
 
     @ManyToOne
