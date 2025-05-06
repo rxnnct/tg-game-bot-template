@@ -34,6 +34,6 @@ public class LastMatchBattleLog {
     private String battleLog;
 
     @UpdateTimestamp
-    @Column(name = "updated_at", columnDefinition = "timestamp with time zone")
+    @Column(name = "updated_at", columnDefinition = "timestamp with time zone", nullable = false)
     private LocalDateTime updatedAt;
 }

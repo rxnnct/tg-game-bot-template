@@ -40,6 +40,6 @@ public class Match {
     private AppUser winner;
 
     @CreationTimestamp
-    @Column(name = "created_at", columnDefinition = "timestamp with time zone default now()")
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", columnDefinition = "timestamp with time zone default now()", nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

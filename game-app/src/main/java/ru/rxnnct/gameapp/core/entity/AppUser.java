@@ -17,6 +17,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import ru.rxnnct.gameapp.game.entity.GameCharacter;
 import ru.rxnnct.gameapp.game.entity.PlayerRating;
@@ -45,8 +46,12 @@ public class AppUser {
     private Long balance = 0L;
 
     @CreationTimestamp
-    @Column(name = "created_at", columnDefinition = "timestamp with time zone default now()")
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", columnDefinition = "timestamp with time zone default now()", nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", columnDefinition = "timestamp with time zone default now()", nullable = false)
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "appUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<GameCharacter> characters;

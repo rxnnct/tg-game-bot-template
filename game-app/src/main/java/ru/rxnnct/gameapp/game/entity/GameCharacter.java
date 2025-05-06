@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import ru.rxnnct.gameapp.core.entity.AppUser;
 
@@ -40,8 +41,12 @@ public class GameCharacter {
     private Boolean isPvpAvailable = false;
 
     @CreationTimestamp
-    @Column(name = "created_at", columnDefinition = "timestamp with time zone default now()")
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", columnDefinition = "timestamp with time zone default now()", nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", columnDefinition = "timestamp with time zone default now()", nullable = false)
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "app_user_id", nullable = false)
