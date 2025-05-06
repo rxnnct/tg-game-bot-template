@@ -26,10 +26,10 @@ CREATE TABLE game_app.t_player_rating
     id           uuid primary key,
     app_user_id  uuid references game_app.t_app_user (id) on delete cascade,
     mmr          bigint,
-    games_played bigint, --deliberately denormalized
-    wins         bigint, --deliberately denormalized
-    losses       bigint, --deliberately denormalized
-    updated_at   timestamptz,
+    games_played bigint                   default 0, --deliberately denormalized
+    wins         bigint                   default 0, --deliberately denormalized
+    losses       bigint                   default 0, --deliberately denormalized
+    updated_at   timestamp with time zone default now(),
     unique (app_user_id)
 );
 
@@ -39,14 +39,14 @@ create table game_app.t_match
     app_user_id_1 uuid references game_app.t_app_user (id) on delete cascade,
     app_user_id_2 uuid references game_app.t_app_user (id) on delete cascade,
     winner        uuid references game_app.t_app_user (id) on delete cascade,
-    created_at    timestamptz
+    created_at    timestamp with time zone default now()
 );
 
 CREATE TABLE game_app.t_last_match_battle_log
 (
     match_id   uuid primary key references game_app.t_match (id) on delete cascade,
     battle_log text,
-    updated_at timestamptz
+    updated_at timestamp with time zone default now()
 );
 
 CREATE INDEX idx_pvp_available ON game_app.t_game_character (is_pvp_available)

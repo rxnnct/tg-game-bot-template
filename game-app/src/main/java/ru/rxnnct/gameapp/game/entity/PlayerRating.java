@@ -34,16 +34,16 @@ public class PlayerRating {
     @Column(name = "mmr")
     private Long mmr;
 
-    @Column(name = "games_played")
-    private Long gamesPlayed;
+    @Column(name = "games_played", columnDefinition = "bigint default 0")
+    private Long gamesPlayed = 0L;
 
-    @Column(name = "wins")
-    private Long wins;
+    @Column(name = "wins", columnDefinition = "bigint default 0")
+    private Long wins = 0L;
 
-    @Column(name = "losses")
-    private Long losses;
+    @Column(name = "losses", columnDefinition = "bigint default 0")
+    private Long losses = 0L;
 
     @UpdateTimestamp
-    @Column(name = "updated_at", columnDefinition = "timestamp")
+    @Column(name = "updated_at", columnDefinition = "timestamp with time zone")
     private LocalDateTime updatedAt;
 }

@@ -11,6 +11,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import ru.rxnnct.gameapp.core.entity.AppUser;
 
@@ -38,6 +39,7 @@ public class Match {
     @JoinColumn(name = "winner", nullable = false, unique = true)
     private AppUser winner;
 
-    @Column(name = "created_at", columnDefinition = "timestamp")
+    @CreationTimestamp
+    @Column(name = "created_at", columnDefinition = "timestamp with time zone default now()")
     private LocalDateTime createdAt;
 }

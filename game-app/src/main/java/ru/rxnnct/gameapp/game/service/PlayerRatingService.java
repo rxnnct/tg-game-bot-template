@@ -17,10 +17,7 @@ public class PlayerRatingService {
     public PlayerRating createPlayerRating(AppUser appUser) {
         PlayerRating newPlayerRating = new PlayerRating();
         newPlayerRating.setAppUser(appUser);
-        newPlayerRating.setMmr(0L);
-        newPlayerRating.setGamesPlayed(0L);
-        newPlayerRating.setWins(0L);
-        newPlayerRating.setLosses(0L);
+        newPlayerRating.setMmr(1000L);
 
         playerRatingRepository.save(newPlayerRating);
         return newPlayerRating;
