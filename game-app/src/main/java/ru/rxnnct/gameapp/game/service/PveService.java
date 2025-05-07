@@ -34,9 +34,9 @@ public class PveService {
             throw new NoCharactersException("User has no characters, tgId: %d".formatted(tgId));
         }
 
-        UUID appUserId = appUser.getCharacters().getFirst().getId();
+        UUID gameCharacterId = appUser.getCharacters().getFirst().getId();
         long income = (long) ((Math.random() * (12 - 8)) + 8);
-        gameCharacterService.addCurrency(appUserId, income);
+        gameCharacterService.addCurrency(gameCharacterId, income);
 
         return income;
     }

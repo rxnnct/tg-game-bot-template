@@ -33,6 +33,16 @@ public class GameCharacterService {
 
         long newCurrency = Math.addExact(gameCharacter.getCurrency(), currency);
         gameCharacter.setCurrency(newCurrency);
+    }
 
+    @Transactional
+    public boolean switchIsPvpAvailable(UUID gameCharacterId) {
+        GameCharacter gameCharacter = gameCharacterRepository.findById(gameCharacterId)
+            .orElseThrow(() -> new NoCharactersException(
+                "GameCharacter not found with id: " + gameCharacterId));
+        boolean isPvpAvailable = !gameCharacter.getIsPvpAvailable();
+        gameCharacter.setIsPvpAvailable(isPvpAvailable);
+
+        return isPvpAvailable;
     }
 }
