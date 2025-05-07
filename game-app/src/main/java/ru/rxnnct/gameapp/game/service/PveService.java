@@ -48,26 +48,25 @@ public class PveService {
     }
 
     public void setExamplePveActivityInProgress(Long tgId, boolean inProgress) {
-        setPveActivityInProgress(tgId, inProgress, EXAMPLE_PVE_ACTIVITY_IS_IN_PROGRESS_KEY,
-            EXAMPLE_PVE_ACTIVITY_DURATION);
+        setPveActivityInProgress(tgId, inProgress);
     }
 
     public boolean isExamplePveActivityInProgress(Long tgId) {
-        return isPveActivityInProgress(tgId, EXAMPLE_PVE_ACTIVITY_IS_IN_PROGRESS_KEY);
+        return isPveActivityInProgress(tgId);
     }
 
-    private void setPveActivityInProgress(Long tgId, boolean inProgress, String pveActivityName,
-        int duration) {
-        String key = "%s:%d".formatted(pveActivityName, tgId);
+    private void setPveActivityInProgress(Long tgId, boolean inProgress) {
+        String key = "%s:%d".formatted(PveService.EXAMPLE_PVE_ACTIVITY_IS_IN_PROGRESS_KEY, tgId);
         if (inProgress) {
-            redisTemplate.opsForValue().set(key, "true", Duration.ofMinutes(duration));
+            redisTemplate.opsForValue().set(key, "true", Duration.ofMinutes(
+                PveService.EXAMPLE_PVE_ACTIVITY_DURATION));
         } else {
             redisTemplate.delete(key);
         }
     }
 
-    private boolean isPveActivityInProgress(Long tgId, String pveActivityName) {
-        String key = "%s:%d".formatted(pveActivityName, tgId);
+    private boolean isPveActivityInProgress(Long tgId) {
+        String key = "%s:%d".formatted(PveService.EXAMPLE_PVE_ACTIVITY_IS_IN_PROGRESS_KEY, tgId);
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 }
