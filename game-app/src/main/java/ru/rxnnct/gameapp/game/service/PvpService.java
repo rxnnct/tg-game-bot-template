@@ -37,7 +37,11 @@ public class PvpService {
 
         //todo: exampleFight + PvP on/off check
         Random random = new Random();
-        ExampleFightResultDto result = new ExampleFightResultDto("stub", "stub", "stub", random.nextBoolean());
+        ExampleFightResultDto result = new ExampleFightResultDto(
+            "stub",
+            "stub",
+            "stub",
+            random.nextBoolean());
 
         return result;
     }
