@@ -7,7 +7,9 @@ import ru.rxnnct.gameapp.core.entity.AppUser;
 import ru.rxnnct.gameapp.core.exceptions.AppUserNotFoundException;
 import ru.rxnnct.gameapp.core.exceptions.NoCharactersException;
 import ru.rxnnct.gameapp.core.service.AppUserService;
+import ru.rxnnct.gameapp.game.dto.ExampleFightResultDto;
 import ru.rxnnct.gameapp.game.entity.GameCharacter;
+import ru.rxnnct.gameapp.game.domain.MatchedPlayers;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +31,23 @@ public class PvpService {
     }
 
     @Transactional
-    public String exampleFight(Long tgId) {
-        return "WIN!!!";
+    public ExampleFightResultDto exampleFight(Long tgId) {
+        MatchedPlayers matchedPlayers = makeMatch(tgId);
+
+        //todo: exampleFight
+        ExampleFightResultDto result = new ExampleFightResultDto("stub", "stub", "stub", true);
+
+        return result;
+    }
+
+    private MatchedPlayers makeMatch(Long tgId) {
+
+        MatchedPlayers matchedPlayers = new MatchedPlayers(null, null);
+
+        //todo: makeMatch
+        //MatchedPlayers matchedPlayers = new MatchedPlayers(null, null);
+
+        return matchedPlayers;
     }
 
     private GameCharacter getFirstCharacterByTgId(Long tgId) {

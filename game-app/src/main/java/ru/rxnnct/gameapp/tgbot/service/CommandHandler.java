@@ -9,6 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import ru.rxnnct.gameapp.core.service.AppUserService;
+import ru.rxnnct.gameapp.game.dto.ExampleFightResultDto;
 import ru.rxnnct.gameapp.game.service.PvpService;
 import ru.rxnnct.gameapp.tgbot.config.properties.TelegramBotProperties;
 import ru.rxnnct.gameapp.tgbot.enums.MenuState;
@@ -132,9 +133,9 @@ public class CommandHandler {
     }
 
     private BotResponse handleFight(Long tgId, Locale locale) {
-        String result = pvpService.exampleFight(tgId);
+        ExampleFightResultDto result = pvpService.exampleFight(tgId);
         return new TextResponse(
-            messageSource.getMessage("bot.pvp.result", new Object[]{result}, locale),
+            messageSource.getMessage("bot.pvp.result", new Object[]{result.getResult()}, locale),
             null
         );
     }
