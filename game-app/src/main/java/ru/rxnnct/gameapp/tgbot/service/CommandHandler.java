@@ -135,7 +135,9 @@ public class CommandHandler {
     private BotResponse handleFight(Long tgId, Locale locale) {
         ExampleFightResultDto result = pvpService.exampleFight(tgId);
         return new TextResponse(
-            messageSource.getMessage("bot.pvp.result", new Object[]{result.getResult()}, locale),
+            messageSource.getMessage("bot.pvp.result", new Object[]{
+                result.getResult() ? messageSource.getMessage("bot.pvp.result_win", null, locale)
+                    : messageSource.getMessage("bot.pvp.result_lose", null, locale)}, locale),
             null
         );
     }

@@ -1,5 +1,6 @@
 package ru.rxnnct.gameapp.game.service;
 
+import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,8 +35,9 @@ public class PvpService {
     public ExampleFightResultDto exampleFight(Long tgId) {
         MatchedPlayers matchedPlayers = makeMatch(tgId);
 
-        //todo: exampleFight
-        ExampleFightResultDto result = new ExampleFightResultDto("stub", "stub", "stub", true);
+        //todo: exampleFight + PvP on/off check
+        Random random = new Random();
+        ExampleFightResultDto result = new ExampleFightResultDto("stub", "stub", "stub", random.nextBoolean());
 
         return result;
     }
@@ -44,7 +46,7 @@ public class PvpService {
 
         MatchedPlayers matchedPlayers = new MatchedPlayers(null, null);
 
-        //todo: makeMatch
+        //todo: makeMatch + PvP on/off check
         //MatchedPlayers matchedPlayers = new MatchedPlayers(null, null);
 
         return matchedPlayers;
